@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h2 th:text="${post.title}">제목</h2>
+    <h2 th:text="${post.content}">내용</h2>
+    <p>
+        <b>작성자:</b>
+        <span th:text="${post.author}"></span>
+    </p>
+
+    <form th:action="@{|/posts/${post.id}/delete}" method="post">
+        <button type="submit">삭제</button>
+    </form>
+</body>
+</html>
