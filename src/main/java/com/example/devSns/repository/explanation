@@ -1,1 +1,5 @@
 데이터베이스 접근 (JPA 인터페이스)
+
+PostRepository<T, ID>
+상속만 하면 기본 CRUD가 다 생김
+- save, findAll, findById, deleteById
