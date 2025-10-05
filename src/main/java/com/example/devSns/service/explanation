@@ -1,1 +1,33 @@
 비지니스 로직 담당
+
+PostService
+
+@Service
+비지니스 로직이 모이는 곳
+- 트랜잭션을 붙여야 할 때도 주로 서비스에서
+- 의존성 주입 (생성자 주입)
+
+@Transactional(readOnly = true)
+읽기 성능 최적화
+- 원자성 보장
+- 안전빵
+
+private final PostRepository postRepository;
+- 의존성으로 받는 레포지토리
+- 생성자 주입
+- JpaRepository<PostEntity, Long> 상속
+
+findAll()
+- 모든 게시글 조회
+
+findById()
+- getPost 함수에서 PK(id)로 단건 조회
+- updatePost 함수에서 수정 대상 로드, 필드 갱신, 저장
+
+save
+- 새 엔터티 저장
+- id가 없으면 persist, 있으면 merge
+
+deleteById
+- PK(id)로 삭제
+
