@@ -2,19 +2,34 @@ package com.example.devSns;
 
 
 import com.example.devSns.dto.ErrorDto;
+import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
+
+import java.io.PrintStream;
+import java.util.Arrays;
 
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private final Logger logger =  LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<ErrorDto> handleInvalidRequestException(InvalidRequestException e) {
+        return ResponseEntity.status(400).body(new ErrorDto(e.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        return ResponseEntity.status(400).body(new ErrorDto(e.getMessage()));
+    }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorDto> handleNotFound(NotFoundException e) {
@@ -28,6 +43,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDto> handleException(Exception e) {
+
+        for (StackTraceElement s : e.getStackTrace()) {
+            logger.error(s.toString());
+        }
         logger.error(e.getMessage());
         return ResponseEntity.status(500).body(new ErrorDto("Internal Server Error"));
     }

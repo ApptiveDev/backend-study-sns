@@ -1,34 +1,42 @@
 package com.example.devSns.repository;
 
 import com.example.devSns.domain.Comment;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
 public class CommentRepository {
     private final JdbcClient jdbcClient;
-    private final KeyHolder keyHolder;
-
-    public CommentRepository(JdbcClient jdbcClient) {
+//    private final KeyHolder keyHolder;
+    private final SimpleJdbcInsert insert;
+    @Autowired
+    public CommentRepository(JdbcClient jdbcClient, DataSource dataSource) {
         this.jdbcClient = jdbcClient;
-        this.keyHolder = new GeneratedKeyHolder();
+        this.insert = new SimpleJdbcInsert(dataSource)
+                .withTableName("comments")
+                .usingColumns("content", "user_name", "post_id")
+                .usingGeneratedKeyColumns("id");
     }
 
-    public Comment save(Comment comment, Long postId) {
-        var updated = jdbcClient.sql("INSERT INTO COMMENTS(CONTENT, LIKE_COUNT, USER_NAME, POST_ID) values(?, ?, ?, ?1)")
-                .params(comment.getContent(), comment.getLikeCount(), comment.getUserName(), postId)
-                .update(keyHolder);
+    public Comment save(Comment comment) {
+        Map<String, Object> params = Map.of(
+                "content", comment.getContent(),
+                "user_name", comment.getUserName(),
+                "post_id", comment.getPostId()
+        );
 
-        comment.setId(keyHolder.getKey().longValue());
+//        comment.setId(keyHolder.getKey().longValue());
+        Number key = insert.executeAndReturnKey(params);
+        comment.setId(key.longValue());
         return comment;
     }
 

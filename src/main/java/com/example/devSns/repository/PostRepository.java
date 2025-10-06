@@ -1,30 +1,42 @@
 package com.example.devSns.repository;
 
 import com.example.devSns.domain.Post;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 
+import javax.sql.DataSource;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
 public class PostRepository {
     private final JdbcClient jdbcClient;
-    private final KeyHolder keyHolder;
-    public PostRepository(JdbcClient jdbcClient) {
+    private final SimpleJdbcInsert insert;
+
+    @Autowired
+    public PostRepository(JdbcClient jdbcClient, DataSource dataSource) {
         this.jdbcClient = jdbcClient;
-        this.keyHolder = new GeneratedKeyHolder();
+        this.insert = new SimpleJdbcInsert(dataSource)
+                .withTableName("posts")
+                .usingColumns("content", "user_name")
+                .usingGeneratedKeyColumns("id");
+
     }
 
     public Post save(Post post) {
-        var updated = jdbcClient.sql("INSERT INTO posts(CONTENT, LIKE_COUNT, USER_NAME) values(?, ?, ?)")
-                .params(post.getContent(), post.getLikeCount(), post.getUserName())
-                .update(keyHolder);
-        post.setId(keyHolder.getKey().longValue());
+        Map<String, Object> params = Map.of(
+                "content", post.getContent(),
+                "user_name", post.getUserName()
+        );
+        Number key = insert.executeAndReturnKey(params);
+        post.setId(key.longValue());
         return post;
     }
 

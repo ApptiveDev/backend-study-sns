@@ -6,9 +6,11 @@ import com.example.devSns.dto.GenericDataDto;
 import com.example.devSns.dto.PaginatedDto;
 import com.example.devSns.dto.post.PostCreateDto;
 import com.example.devSns.dto.post.PostResponseDto;
+import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
 import com.example.devSns.repository.CommentRepository;
 import com.example.devSns.repository.PostRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
+    @Autowired
     public PostService(PostRepository postRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
@@ -31,6 +34,7 @@ public class PostService {
     public Long join(PostCreateDto postCreateDto) {
         Post post = new Post();
         post.setContent(postCreateDto.content());
+//        post.setLikeCount(0L);
         post.setUserName(postCreateDto.user_name());
         postRepository.save(post);
         return post.getId();
@@ -45,6 +49,49 @@ public class PostService {
 
     public void delete(Long id) {
         int affectedRows = postRepository.deleteById(id);
+        if (affectedRows == 0) throw new NotFoundException("post not found");
+    }
+
+    private PostResponseDto update(PostResponseDto postResponseDto) {
+        Post post = new Post();
+        post.setId(postResponseDto.id());
+        post.setContent(postResponseDto.content());
+        post.setUserName(postResponseDto.user_name());
+        post.setLikeCount(postResponseDto.like_count());
+        post.setCreatedAt(postResponseDto.created_at());
+        post.setUpdatedAt(postResponseDto.updated_at());
+        int affectedRows = postRepository.updateById(post, postResponseDto.id());
+        if (affectedRows == 0) throw new NotFoundException("post not found");
+
+        return postResponseDto;
+    }
+
+    public PostResponseDto updateContent(Long id, GenericDataDto<String> contentsDto) {
+        if (contentsDto.data() == null) throw new InvalidRequestException("Invalid request.");
+        PostResponseDto postResponseDto = findOne(id);
+
+        return update(new PostResponseDto(
+                postResponseDto.id(),
+                contentsDto.data(),
+                postResponseDto.user_name(),
+                postResponseDto.like_count(),
+                postResponseDto.created_at(),
+                postResponseDto.updated_at(),
+                postResponseDto.comments()
+        ));
+    }
+
+    public PostResponseDto like(Long id) {
+        PostResponseDto postResponseDto = findOne(id);
+        return update(new PostResponseDto(
+                postResponseDto.id(),
+                postResponseDto.content(),
+                postResponseDto.user_name(),
+                postResponseDto.like_count() + 1,
+                postResponseDto.created_at(),
+                postResponseDto.updated_at(),
+                postResponseDto.comments()
+        ));
     }
 
     public PaginatedDto<List<PostResponseDto>> findAsPaginated(GenericDataDto<LocalDateTime> localDateTimeDto) {
@@ -53,6 +100,9 @@ public class PostService {
                 postRepository.findByBeforeCreatedAt(LocalDateTime.now()) :
                 postRepository.findByBeforeCreatedAt(criteria);
 
+        if (posts.isEmpty()) {
+            return new PaginatedDto<>(List.of(), null);
+        }
         List<Long> postIds = posts.stream().map(Post::getId).toList();
         Map<Long, List<Comment>> commentMapping = commentRepository.findAndGroupByPostIds(postIds);
 

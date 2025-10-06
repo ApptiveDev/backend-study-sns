@@ -4,8 +4,14 @@ import com.example.devSns.dto.GenericDataDto;
 import com.example.devSns.dto.PaginatedDto;
 import com.example.devSns.dto.post.PostCreateDto;
 import com.example.devSns.dto.post.PostResponseDto;
+import com.example.devSns.exception.InvalidRequestException;
+import com.example.devSns.repository.PostRepository;
 import com.example.devSns.service.PostService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +28,7 @@ public class PostController {
 
     private final PostService postService;
 
+    @Autowired
     public PostController(PostService postService) {
         this.postService = postService;
     }
@@ -40,20 +47,45 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponseDto> getOne(@PathVariable Long id) {
+    public ResponseEntity<PostResponseDto> getOne(@PathVariable @Positive Long id) {
         PostResponseDto post = postService.findOne(id);
         return ResponseEntity.ok().body(post);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-
+    public ResponseEntity<Void> delete(@PathVariable @Positive Long id) {
+        postService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
+//    @PutMapping
+//    public ResponseEntity<PostResponseDto> update(@RequestBody @Valid PostResponseDto postResponseDto) {
+//        PostResponseDto updated = postService.update(postResponseDto);
+//        return ResponseEntity.ok().body(updated);
+//    }
+
+
     @GetMapping
-    public ResponseEntity<PaginatedDto<List<PostResponseDto>>> getAsPaginated(@RequestBody @Valid GenericDataDto<LocalDateTime> dateTimeDto) {
+    public ResponseEntity<PaginatedDto<List<PostResponseDto>>> getAsPaginated(
+            @RequestBody @Valid GenericDataDto<LocalDateTime> dateTimeDto
+    ) {
         PaginatedDto<List<PostResponseDto>> posts = postService.findAsPaginated(dateTimeDto);
         return ResponseEntity.ok().body(posts);
+    }
+
+    @PatchMapping("/{id}/likes")
+    public ResponseEntity<PostResponseDto> like(@PathVariable @Positive Long id) {
+        PostResponseDto post = postService.like(id);
+        return ResponseEntity.ok().body(post);
+    }
+
+    @PatchMapping("/{id}/contents")
+    public ResponseEntity<PostResponseDto> contents(
+            @PathVariable @Positive Long id, @RequestBody GenericDataDto<String> contentsDto) {
+
+        if (contentsDto == null) throw new InvalidRequestException("Invalid request.");
+        PostResponseDto post = postService.updateContent(id, contentsDto);
+        return ResponseEntity.ok().body(post);
     }
 
 }
