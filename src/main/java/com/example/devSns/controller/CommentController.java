@@ -10,6 +10,7 @@ import com.example.devSns.service.CommentService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -57,10 +58,12 @@ public class CommentController {
 
     @GetMapping("/postGroup/{postId}")
     public ResponseEntity<PaginatedDto<List<CommentResponseDto>>> getAsPaginated(
-            @RequestBody @Valid GenericDataDto<LocalDateTime> dateTimeDto,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime before,
             @PathVariable @Positive Long postId
     ) {
-        PaginatedDto<List<CommentResponseDto>> posts = commentService.findAsPaginated(dateTimeDto, postId);
+        PaginatedDto<List<CommentResponseDto>> posts = commentService.findAsPaginated(new GenericDataDto<>(before), postId);
         return ResponseEntity.ok().body(posts);
     }
 

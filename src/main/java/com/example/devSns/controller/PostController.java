@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -67,9 +68,11 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<PaginatedDto<List<PostResponseDto>>> getAsPaginated(
-            @RequestBody @Valid GenericDataDto<LocalDateTime> dateTimeDto
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime before
     ) {
-        PaginatedDto<List<PostResponseDto>> posts = postService.findAsPaginated(dateTimeDto);
+        PaginatedDto<List<PostResponseDto>> posts = postService.findAsPaginated(new GenericDataDto<>(before));
         return ResponseEntity.ok().body(posts);
     }
 
