@@ -6,7 +6,14 @@
     <ul>
         <li th:each="post : ${posts}">
             <a th:href="@{|/posts/${post.id}|}" th:text="${post.title}"></a>
+            </br>
+            <small>
+                작성일:
+                <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                /
+                수정일:
+                <span th:text="${#temporals.format(post.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+            </small>
         </li>
     </ul>
 </body>
-</html>
