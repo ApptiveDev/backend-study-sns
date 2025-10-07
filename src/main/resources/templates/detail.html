@@ -8,8 +8,14 @@
         <span th:text="${post.author}"></span>
     </p>
 
+    <a th:href="@{|/posts/${post.id}/edit|}">
+        <button type="button">수정</button>
+    </a>
     <form th:action="@{|/posts/${post.id}/delete|}" method="post">
         <button type="submit">삭제</button>
     </form>
+    <a th:href="@{|/posts|}">
+        <button type="button">게시글 보기</button>
+    </a>
 </body>
 </html>

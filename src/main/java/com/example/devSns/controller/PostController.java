@@ -35,7 +35,7 @@ public class PostController {
     @PostMapping
     public String create(@ModelAttribute PostEntity postEntity) {
         postService.createPost(postEntity);
-        return "redirect:/posts";
+        return "redirect:/posts"; // 글 생성 후 돌아올 주소
     }
 
     // HTTP GET /posts/{id}
@@ -45,10 +45,25 @@ public class PostController {
         return "detail";
     }
 
+    // HTTP GET /posts/{id}/edit
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model) {
+        PostEntity postEntity = postService.getPost(id);
+        model.addAttribute("post", postEntity);
+        return "edit";
+    }
+
+    // HTTP POST /posts/{id}/update
+    @PostMapping("/{id}/update")
+    public String update(@PathVariable Long id, @ModelAttribute PostEntity updatedPost) {
+        postService.updatePost(id, updatedPost);
+        return "redirect:/posts/" + id; // 수정 후 돌아올 주소
+    }
+
     // HTTP POST /posts/{id}/delete
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id) {
         postService.deletePost(id);
-        return "redirect:/posts";
+        return "redirect:/posts"; // 삭제 후 돌아올 주소
     }
 }
