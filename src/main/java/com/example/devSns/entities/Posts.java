@@ -1,6 +1,7 @@
-package entities;
+package com.example.devSns.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,9 +17,11 @@ public class Posts {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    @NotNull
     @Column
     private String content;
 
+    @NotNull
     @Column
     private String username;
 

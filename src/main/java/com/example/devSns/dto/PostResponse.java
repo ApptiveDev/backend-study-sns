@@ -1,4 +1,4 @@
-package dto;
+package com.example.devSns.dto;
 
 import lombok.*;
 

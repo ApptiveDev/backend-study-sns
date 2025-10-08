@@ -1,20 +1,19 @@
-package controllers;
+package com.example.devSns.controllers;
 
-import dto.Post;
-import dto.PostResponse;
+import com.example.devSns.dto.PostDTO;
+import com.example.devSns.dto.PostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import services.PostService;
-
+import com.example.devSns.services.PostService;
 import java.util.List;
 
 @RestController
 @RequestMapping("/sns")
 @RequiredArgsConstructor
 public class PostController {
-    private PostService postService;
+    private final PostService postService;
 
     @GetMapping("/show")
     public ResponseEntity<List<PostResponse>> showPosts() {
@@ -29,20 +28,20 @@ public class PostController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<PostResponse> addPost(@RequestBody Post post) {
-        PostResponse postResponse = postService.save(post);
+    public ResponseEntity<PostResponse> addPost(@RequestBody PostDTO postDTO) {
+        PostResponse postResponse = postService.save(postDTO);
         return new ResponseEntity<>(postResponse, HttpStatus.CREATED);
     }
 
     @PutMapping("/update")
-    public ResponseEntity<PostResponse> updatePost(@RequestBody Post post) {
-        PostResponse postResponse = postService.update(post);
+    public ResponseEntity<PostResponse> updatePost(@RequestBody PostDTO postDTO) {
+        PostResponse postResponse = postService.update(postDTO);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deletePost(@RequestBody Post post) {
-        postService.delete(post);
+    public ResponseEntity<String> deletePost(@RequestBody PostDTO postDTO) {
+        postService.delete(postDTO);
         return new ResponseEntity<>("Post deleted", HttpStatus.OK);
     }
 }

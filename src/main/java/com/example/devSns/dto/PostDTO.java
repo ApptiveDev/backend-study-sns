@@ -1,6 +1,6 @@
-package dto;
+package com.example.devSns.dto;
 
-public record Post(
+public record PostDTO(
     Integer id,
     String username,
     String content
