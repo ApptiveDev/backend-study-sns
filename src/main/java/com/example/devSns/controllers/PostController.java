@@ -4,6 +4,7 @@ import com.example.devSns.dto.PostDTO;
 import com.example.devSns.dto.PostResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,13 @@ public class PostController {
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
         ResponseEntity<String> response =
                 new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return response;
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleDataAccessException(DataAccessException e) {
+        ResponseEntity<String> response =
+                new ResponseEntity<>("DB 오류", HttpStatus.INTERNAL_SERVER_ERROR);
         return response;
     }
 }
