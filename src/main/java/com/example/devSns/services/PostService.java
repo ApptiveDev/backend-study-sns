@@ -3,6 +3,7 @@ package com.example.devSns.services;
 import com.example.devSns.dto.PostDTO;
 import com.example.devSns.dto.PostResponse;
 import com.example.devSns.entities.Posts;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import com.example.devSns.repositories.PostRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,14 +57,19 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse findByUsername(String username) { // 작성자 기준 post 조회
-        Posts post = postRepository.findByUsername(username);
-        return entityToDto(post);
+    public List<PostResponse> findByUsername(String username) { // 작성자 기준 post 조회
+        List<Posts> postsByName = postRepository.findByUsername(username);
+        List<PostResponse> postResponses = new ArrayList<>();
+        for (Posts post : postsByName) {
+            postResponses.add(entityToDto(post));
+        }
+        return postResponses;
     }
 
     @Transactional
     public PostResponse update(PostDTO postDTO) { // 수정된 post 반영
-        Posts postEntity = postRepository.findById(postDTO.id());
+        Posts postEntity = postRepository.findById(postDTO.id())
+                .orElseThrow(() -> new EntityNotFoundException("수정하려는 Post를 찾을 수 없습니다."));
         postEntity.setContent(postDTO.content());
         postEntity.setUpdateat(LocalDateTime.now());
         return entityToDto(postEntity);
@@ -70,7 +77,8 @@ public class PostService {
 
     @Transactional
     public void delete(PostDTO postDTO) { // post 삭제
-        Posts object = postRepository.findById(postDTO.id());
+        Posts object = postRepository.findById(postDTO.id())
+                        .orElseThrow(() -> new EntityNotFoundException("삭제하려는 Post를 찾을 수 없습니다."));
         postRepository.delete(object);
     }
 }

@@ -2,6 +2,7 @@ package com.example.devSns.controllers;
 
 import com.example.devSns.dto.PostDTO;
 import com.example.devSns.dto.PostResponse;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,8 @@ public class PostController {
     }
 
     @GetMapping("/show/{username}")
-    public ResponseEntity<PostResponse> showPost(@PathVariable String username) {
-        PostResponse post = postService.findByUsername(username);
+    public ResponseEntity<List<PostResponse>> showPost(@PathVariable String username) {
+        List<PostResponse> post = postService.findByUsername(username);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
@@ -43,5 +44,12 @@ public class PostController {
     public ResponseEntity<String> deletePost(@RequestBody PostDTO postDTO) {
         postService.delete(postDTO);
         return new ResponseEntity<>("Post deleted", HttpStatus.OK);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
+        ResponseEntity<String> response =
+                new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return response;
     }
 }
