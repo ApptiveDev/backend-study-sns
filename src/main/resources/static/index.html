@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <title>devSns GUI</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind custom config (선택)
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#4f46e5' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+<!-- Header -->
+<header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div class="h-8 w-8 rounded-lg bg-brand/10 flex items-center justify-center text-brand font-bold">SNS</div>
+        <h1 class="text-xl font-semibold">devSns</h1>
+        <div class="ml-auto">
+            <button id="refresh-feed" class="text-sm px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100">새로고침</button>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+    <!-- New Post -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+        <div class="p-4 md:p-6">
+            <h2 class="text-lg font-semibold mb-3">새 포스트</h2>
+            <div class="grid md:grid-cols-5 gap-3">
+                <input id="new-post-user" class="md:col-span-1 w-full border border-slate-300 rounded-xl px-3 py-2" placeholder="user_name" />
+                <textarea id="new-post-content" class="md:col-span-3 w-full border border-slate-300 rounded-xl px-3 py-2" rows="2" placeholder="무슨 일이 있었나요?"></textarea>
+                <button id="btn-create-post" class="md:col-span-1 w-full bg-brand text-white rounded-xl px-4 py-2 hover:bg-indigo-600">포스트</button>
+            </div>
+            <p id="post-create-msg" class="text-sm text-slate-500 mt-2"></p>
+        </div>
+    </section>
+
+    <!-- Feed -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+        <div class="p-4 md:p-6">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-semibold">피드</h2>
+                <div class="text-xs text-slate-500">* 최신 15개씩 로드, 무한 스크롤/더보기</div>
+            </div>
+            <div id="feed" class="space-y-4"></div>
+            <div id="feed-empty" class="hidden text-sm text-slate-500 text-center py-6">아직 포스트가 없어요.</div>
+            <div class="mt-4 flex justify-center">
+                <button id="btn-load-more" class="hidden px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100">더 보기</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Post Detail / Comments Drawer -->
+<div id="drawer" class="fixed inset-0 z-30 hidden">
+    <div class="absolute inset-0 bg-black/30" id="drawer-backdrop"></div>
+    <aside class="absolute right-0 top-0 h-full w-full md:w-[560px] bg-white shadow-xl p-4 md:p-6 overflow-y-auto">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">포스트</h3>
+            <button id="drawer-close" class="rounded-lg px-3 py-1.5 border border-slate-300 hover:bg-slate-100">닫기</button>
+        </div>
+        <article id="drawer-post" class="mt-4"></article>
+
+        <hr class="my-4">
+
+        <section>
+            <h4 class="font-semibold mb-2">댓글</h4>
+            <div id="comments" class="space-y-3"></div>
+            <div id="comments-empty" class="hidden text-sm text-slate-500 py-3">댓글이 없습니다.</div>
+            <div class="mt-3 flex justify-center">
+                <button id="btn-comments-more" class="hidden px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-sm">댓글 더 보기</button>
+            </div>
+        </section>
+
+        <section class="mt-6">
+            <h4 class="font-semibold mb-2">댓글 쓰기</h4>
+            <div class="grid grid-cols-5 gap-2">
+                <input id="new-comment-user" class="col-span-2 border border-slate-300 rounded-xl px-3 py-2" placeholder="user_name" />
+                <input id="new-comment-content" class="col-span-3 border border-slate-300 rounded-xl px-3 py-2" placeholder="댓글 내용" />
+            </div>
+            <div class="mt-2 flex justify-end">
+                <button id="btn-create-comment" class="bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-slate-800">등록</button>
+            </div>
+            <p id="comment-create-msg" class="text-sm text-slate-500 mt-2"></p>
+        </section>
+    </aside>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-6 z-50 hidden">
+    <div class="bg-slate-900 text-white px-4 py-2 rounded-xl shadow-lg text-sm" id="toast-msg"></div>
+</div>
+
+<script>
+    // ---------- Config ----------
+    const API_BASE = ''; // 동일 오리진이면 빈 값, 프록시/도메인이 다르면 'http://localhost:8080' 등으로 지정
+
+    // ---------- Helpers ----------
+    function qs(sel) { return document.querySelector(sel); }
+    function qsa(sel) { return Array.from(document.querySelectorAll(sel)); }
+
+    function showToast(msg, ms = 1800) {
+        const wrap = qs('#toast'), box = qs('#toast-msg');
+        box.textContent = msg;
+        wrap.classList.remove('hidden', 'opacity-0');
+        setTimeout(() => wrap.classList.add('opacity-0'), ms);
+        setTimeout(() => wrap.classList.add('hidden'), ms + 200);
+    }
+
+    function timeAgo(iso) {
+        try {
+            const t = new Date(iso);
+            const s = (Date.now() - t.getTime())/1000;
+            if (s < 60) return `${Math.floor(s)}초 전`;
+            if (s < 3600) return `${Math.floor(s/60)}분 전`;
+            if (s < 86400) return `${Math.floor(s/3600)}시간 전`;
+            return t.toLocaleString();
+        } catch { return iso; }
+    }
+
+    function toIso(input) {
+        if (!input) return null;
+        if (/^\d{4}-\d{2}-\d{2}T/.test(input)) return input;
+        const d = new Date(input);
+        return isNaN(d.getTime()) ? null : d.toISOString();
+    }
+
+    function apiFetch(path, { method='GET', query, body, headers } = {}) {
+        const u = new URL((API_BASE + path), window.location.origin);
+        if (query && typeof query === 'object') {
+            for (const [k, v] of Object.entries(query)) {
+                if (v !== undefined && v !== null && v !== '') u.searchParams.set(k, String(v));
+            }
+        }
+        const init = { method, headers: { 'Content-Type': 'application/json', ...(headers||{}) } };
+        if (method !== 'GET' && method !== 'HEAD' && body !== undefined) {
+            init.body = typeof body === 'string' ? body : JSON.stringify(body);
+        }
+        return fetch(u.toString(), init).then(async r => {
+            const text = await r.text();
+            let json = null; try { json = text ? JSON.parse(text) : null; } catch { json = { raw: text }; }
+            if (!r.ok) {
+                const msg = (json && json.error_message) || r.statusText || 'Request failed';
+                throw new Error(`${r.status} ${msg}`);
+            }
+            return json;
+        });
+    }
+
+    // ---------- API wrappers ----------
+    function listPosts(before) {
+        const query = {};
+        if (before) { const iso = toIso(before); if (iso) query.before = iso; }
+        return apiFetch('/posts', { query });
+    }
+    function getPost(id) { return apiFetch(`/posts/${id}`); }
+    function likePost(id) { return apiFetch(`/posts/${id}/likes`, { method: 'POST' }); }
+    function updatePostContent(id, content) { return apiFetch(`/posts/${id}/contents`, { method:'PATCH', body:{ data: content } }); }
+    function createPost(content, user_name) { return apiFetch('/posts', { method:'POST', body:{ content, user_name } }); }
+
+    function listComments(postId, before) {
+        const query = {};
+        if (before) { const iso = toIso(before); if (iso) query.before = iso; }
+        return apiFetch(`/comments/postGroup/${postId}`, { query });
+    }
+    function createComment(post_id, content, user_name) { return apiFetch('/comments', { method:'POST', body:{ post_id, content, user_name } }); }
+    function likeComment(id) { return apiFetch(`/comments/${id}/likes`, { method:'POST' }); }
+    function updateCommentContent(id, content) { return apiFetch(`/comments/${id}/contents`, { method:'PATCH', body:{ data: content } }); }
+    function deleteComment(id) { return apiFetch(`/comments/${id}`, { method:'DELETE' }); }
+
+    // ---------- State ----------
+    let feed = [];                 // 누적 posts
+    let feedNext = null;           // nextQueryCriteria(ISO or LocalDateTime)
+    let loadingFeed = false;
+
+    let drawerPost = null;         // 현재 열려있는 포스트 dto
+    let comments = [];             // 현재 포스트의 댓글 누적
+    let commentsNext = null;
+
+    // ---------- Render ----------
+    function renderFeed() {
+        const el = qs('#feed');
+        el.innerHTML = '';
+        if (!feed.length) {
+            qs('#feed-empty').classList.remove('hidden');
+            qs('#btn-load-more').classList.add('hidden');
+            return;
+        }
+        qs('#feed-empty').classList.add('hidden');
+
+        for (const p of feed) {
+            el.insertAdjacentHTML('beforeend', postCardHTML(p));
+        }
+        // load more 버튼
+        if (feedNext) {
+            qs('#btn-load-more').classList.remove('hidden');
+        } else {
+            qs('#btn-load-more').classList.add('hidden');
+        }
+        // 이벤트 바인딩
+        qsa('[data-like-post]').forEach(btn => btn.onclick = onLikePost);
+        qsa('[data-open-post]').forEach(btn => btn.onclick = onOpenPost);
+        qsa('[data-edit-post]').forEach(btn => btn.onclick = onEditPost);
+    }
+
+    function postCardHTML(p) {
+        const commentsCount = (p.comments || []).length;
+        return `
+      <article class="border border-slate-200 rounded-2xl p-4 hover:bg-slate-50">
+        <header class="flex items-center gap-2">
+          <div class="h-8 w-8 rounded-full bg-slate-200"></div>
+          <div>
+            <div class="text-sm font-semibold">@${escapeHtml(p.user_name)}</div>
+            <div class="text-xs text-slate-500">${timeAgo(p.created_at)}</div>
+          </div>
+          <div class="ml-auto text-xs text-slate-500">#${p.id}</div>
+        </header>
+        <p class="mt-3 whitespace-pre-wrap break-words">${escapeHtml(p.content)}</p>
+        <footer class="mt-3 flex items-center gap-2 text-sm">
+          <button class="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100"
+                  data-like-post="${p.id}">👍 좋아요 <span class="font-medium">${p.like_count}</span></button>
+          <button class="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100"
+                  data-open-post="${p.id}">💬 댓글 <span class="font-medium">${commentsCount}</span></button>
+          <button class="ml-auto text-xs text-slate-500 underline decoration-dotted"
+                  data-edit-post="${p.id}">내용 수정</button>
+        </footer>
+      </article>`;
+    }
+
+    function renderDrawerPost() {
+        const wrap = qs('#drawer-post');
+        const p = drawerPost;
+        wrap.innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="h-10 w-10 rounded-full bg-slate-200"></div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <div class="font-semibold">@${escapeHtml(p.user_name)}</div>
+              <div class="text-xs text-slate-500">${timeAgo(p.created_at)} • #${p.id}</div>
+            </div>
+            <div class="mt-2 whitespace-pre-wrap break-words">${escapeHtml(p.content)}</div>
+            <div class="mt-3 flex items-center gap-2">
+              <button class="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100"
+                      data-like-post="${p.id}">👍 좋아요 <span class="font-medium">${p.like_count}</span></button>
+              <button class="text-xs text-slate-500 underline decoration-dotted"
+                      data-edit-post="${p.id}">내용 수정</button>
+            </div>
+          </div>
+        </div>
+      `;
+        // 이벤트
+        qsa('#drawer-post [data-like-post]').forEach(btn => btn.onclick = onLikePost);
+        qsa('#drawer-post [data-edit-post]').forEach(btn => btn.onclick = onEditPost);
+    }
+
+    function renderComments() {
+        const list = qs('#comments');
+        list.innerHTML = '';
+        if (!comments.length) {
+            qs('#comments-empty').classList.remove('hidden');
+            qs('#btn-comments-more').classList.add('hidden');
+            return;
+        }
+        qs('#comments-empty').classList.add('hidden');
+
+        for (const c of comments) {
+            list.insertAdjacentHTML('beforeend', commentItemHTML(c));
+        }
+        if (commentsNext) {
+            qs('#btn-comments-more').classList.remove('hidden');
+        } else {
+            qs('#btn-comments-more').classList.add('hidden');
+        }
+        // 이벤트
+        qsa('[data-like-comment]').forEach(btn => btn.onclick = onLikeComment);
+        qsa('[data-del-comment]').forEach(btn => btn.onclick = onDeleteComment);
+        qsa('[data-edit-comment]').forEach(btn => btn.onclick = onEditComment);
+    }
+
+    function commentItemHTML(c) {
+        return `
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="flex items-center gap-2">
+          <div class="h-6 w-6 rounded-full bg-slate-200"></div>
+          <div class="text-sm font-semibold">@${escapeHtml(c.user_name)}</div>
+          <div class="ml-auto text-xs text-slate-500">${timeAgo(c.created_at)} • #${c.id}</div>
+        </div>
+        <div class="mt-2 text-sm whitespace-pre-wrap break-words">${escapeHtml(c.content)}</div>
+        <div class="mt-2 flex items-center gap-2 text-sm">
+          <button class="px-2 py-1 rounded-lg border border-slate-300 hover:bg-slate-100"
+                  data-like-comment="${c.id}">👍 <span class="font-medium">${c.like_count}</span></button>
+          <button class="text-xs text-slate-500 underline decoration-dotted" data-edit-comment="${c.id}">수정</button>
+          <button class="text-xs text-rose-600 underline decoration-dotted" data-del-comment="${c.id}">삭제</button>
+        </div>
+      </div>`;
+    }
+
+    function escapeHtml(s) {
+        return String(s ?? '')
+            .replaceAll('&','&amp;')
+            .replaceAll('<','&lt;')
+            .replaceAll('>','&gt;')
+            .replaceAll('"','&quot;')
+            .replaceAll("'","&#39;");
+    }
+
+    // ---------- Event Handlers ----------
+    async function loadFeed(initial=false) {
+        if (loadingFeed) return;
+        loadingFeed = true;
+        try {
+            const before = initial ? null : feedNext;
+            const res = await listPosts(before);
+            const items = res?.data ?? [];
+            if (initial) feed = items;
+            else feed = feed.concat(items);
+            feedNext = res?.nextQueryCriteria ?? null;
+            renderFeed();
+        } catch (e) {
+            showToast(`피드 로드 실패: ${e.message}`);
+        } finally {
+            loadingFeed = false;
+        }
+    }
+
+    async function onLikePost(e) {
+        const id = Number(e.currentTarget.getAttribute('data-like-post'));
+        try {
+            const updated = await likePost(id);
+            // feed/ drawer 상태 동기화
+            feed = feed.map(p => p.id === id ? updated : p);
+            if (drawerPost && drawerPost.id === id) drawerPost = updated;
+            renderFeed();
+            if (!qs('#drawer').classList.contains('hidden')) renderDrawerPost();
+        } catch (e) { showToast(`좋아요 실패: ${e.message}`); }
+    }
+
+    async function onOpenPost(e) {
+        const id = Number(e.currentTarget.getAttribute('data-open-post'));
+        try {
+            const p = await getPost(id);
+            drawerPost = p;
+            comments = p.comments ?? [];
+            commentsNext = null; // 서버의 comments API는 별도로 페이지네이션하므로 초기화
+            renderDrawerPost();
+            renderComments();
+            openDrawer();
+
+            // 댓글을 더 가져오고 싶을 때(최신 이후로) 버튼 로직: 우선 순차 페이지네이션 (before 기준)
+            // 첫 페이지의 next는 마지막 댓글의 created_at으로 세팅
+            if (comments.length) commentsNext = comments[comments.length - 1].created_at;
+        } catch (e) { showToast(`포스트 열기 실패: ${e.message}`); }
+    }
+
+    async function onEditPost(e) {
+        const id = Number(e.currentTarget.getAttribute('data-edit-post'));
+        const current = (feed.find(p => p.id === id) || drawerPost || {});
+        const content = prompt('새 내용 입력', current.content || '');
+        if (!content) return;
+        try {
+            const updated = await updatePostContent(id, content);
+            feed = feed.map(p => p.id === id ? updated : p);
+            if (drawerPost && drawerPost.id === id) drawerPost = updated;
+            renderFeed();
+            if (!qs('#drawer').classList.contains('hidden')) renderDrawerPost();
+            showToast('수정 완료');
+        } catch (e) { showToast(`수정 실패: ${e.message}`); }
+    }
+
+    async function onLikeComment(e) {
+        const id = Number(e.currentTarget.getAttribute('data-like-comment'));
+        try {
+            const updated = await likeComment(id);
+            comments = comments.map(c => c.id === id ? updated : c);
+            renderComments();
+        } catch (e) { showToast(`댓글 좋아요 실패: ${e.message}`); }
+    }
+
+    async function onDeleteComment(e) {
+        const id = Number(e.currentTarget.getAttribute('data-del-comment'));
+        if (!confirm('댓글을 삭제할까요?')) return;
+        try {
+            await deleteComment(id);
+            comments = comments.filter(c => c.id !== id);
+            renderComments();
+            showToast('삭제 완료');
+        } catch (e) { showToast(`삭제 실패: ${e.message}`); }
+    }
+
+    async function onEditComment(e) {
+        const id = Number(e.currentTarget.getAttribute('data-edit-comment'));
+        const curr = comments.find(c => c.id === id);
+        const content = prompt('새 댓글 내용', curr?.content || '');
+        if (!content) return;
+        try {
+            const updated = await updateCommentContent(id, content);
+            comments = comments.map(c => c.id === id ? updated : c);
+            renderComments();
+            showToast('수정 완료');
+        } catch (e) { showToast(`수정 실패: ${e.message}`); }
+    }
+
+    // Drawer control
+    function openDrawer() { qs('#drawer').classList.remove('hidden'); }
+    function closeDrawer() { qs('#drawer').classList.add('hidden'); }
+
+    // ---------- Listeners ----------
+    qs('#refresh-feed').onclick = () => loadFeed(true);
+    qs('#btn-load-more').onclick = () => loadFeed(false);
+
+    // 새 포스트
+    qs('#btn-create-post').onclick = async () => {
+        const content = qs('#new-post-content').value.trim();
+        const user = qs('#new-post-user').value.trim();
+        if (!content || !user) { showToast('content / user_name을 입력하세요'); return; }
+        qs('#post-create-msg').textContent = '생성 중...';
+        try {
+            const res = await createPost(content, user);
+            qs('#post-create-msg').textContent = `생성됨: id=${res?.data}`;
+            qs('#new-post-content').value = '';
+            // 새로고침
+            await loadFeed(true);
+        } catch (e) {
+            qs('#post-create-msg').textContent = `실패: ${e.message}`;
+        }
+    };
+
+    // Drawer buttons
+    qs('#drawer-close').onclick = closeDrawer;
+    qs('#drawer-backdrop').onclick = closeDrawer;
+
+    // 댓글: 더 보기 (before=마지막 created_at)
+    qs('#btn-comments-more').onclick = async () => {
+        if (!drawerPost) return;
+        try {
+            const res = await listComments(drawerPost.id, commentsNext);
+            const items = res?.data ?? [];
+            comments = comments.concat(items);
+            commentsNext = res?.nextQueryCriteria ?? null;
+            renderComments();
+        } catch (e) { showToast(`댓글 로드 실패: ${e.message}`); }
+    };
+
+    // 댓글: 작성
+    qs('#btn-create-comment').onclick = async () => {
+        if (!drawerPost) return;
+        const user = qs('#new-comment-user').value.trim();
+        const content = qs('#new-comment-content').value.trim();
+        if (!user || !content) { showToast('user_name / content를 입력하세요'); return; }
+        qs('#comment-create-msg').textContent = '등록 중...';
+        try {
+            await createComment(drawerPost.id, content, user);
+            qs('#comment-create-msg').textContent = '등록 완료';
+            qs('#new-comment-content').value = '';
+            // 최신 상태를 위해 단건 포스트 재조회
+            const p = await getPost(drawerPost.id);
+            drawerPost = p;
+            comments = p.comments ?? [];
+            commentsNext = comments.length ? comments[comments.length-1].created_at : null;
+            renderDrawerPost();
+            renderComments();
+        } catch (e) {
+            qs('#comment-create-msg').textContent = `실패: ${e.message}`;
+        }
+    };
+
+    // ---------- Init ----------
+    loadFeed(true);
+    // Infinite scroll (하단 200px에서 더보기)
+    window.addEventListener('scroll', () => {
+        const nearBottom = window.innerHeight + window.scrollY > document.body.offsetHeight - 200;
+        if (nearBottom && feedNext && !loadingFeed) loadFeed(false);
+    });
+</script>
+</body>
+</html>
