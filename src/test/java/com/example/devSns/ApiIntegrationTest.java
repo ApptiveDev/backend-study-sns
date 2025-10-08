@@ -102,7 +102,7 @@ class ApiIntegrationTest {
             ).get("data")).longValue();
 
             // 좋아요
-            mvc.perform(patch("/posts/{id}/likes", id))
+            mvc.perform(post("/posts/{id}/likes", id))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(id))
                     .andExpect(jsonPath("$.like_count").value(1));
@@ -118,7 +118,7 @@ class ApiIntegrationTest {
                             .andReturn().getResponse().getContentAsString()
             ).get("data")).longValue();
 
-            mvc.perform(patch("/posts/{id}/contents", id)
+            mvc.perform(post("/posts/{id}/contents", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJson(new GenericDataDto<>("new content"))))
                     .andExpect(status().isOk())
@@ -222,7 +222,7 @@ class ApiIntegrationTest {
                             .andReturn().getResponse().getContentAsString()
             ).get("data")).longValue();
 
-            mvc.perform(patch("/comments/{id}/likes", id))
+            mvc.perform(post("/comments/{id}/likes", id))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(id))
                     .andExpect(jsonPath("$.like_count").value(1));
@@ -239,7 +239,7 @@ class ApiIntegrationTest {
                             .andReturn().getResponse().getContentAsString()
             ).get("data")).longValue();
 
-            mvc.perform(patch("/comments/{id}/contents", id)
+            mvc.perform(post("/comments/{id}/contents", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJson(new GenericDataDto<>("new"))))
                     .andExpect(status().isOk())

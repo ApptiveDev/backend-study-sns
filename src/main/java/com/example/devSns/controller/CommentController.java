@@ -67,13 +67,13 @@ public class CommentController {
         return ResponseEntity.ok().body(posts);
     }
 
-    @PatchMapping("/{id}/likes")
+    @PostMapping("/{id}/likes")
     public ResponseEntity<CommentResponseDto> like(@PathVariable @Positive Long id) {
         CommentResponseDto comment = commentService.like(id);
         return ResponseEntity.ok().body(comment);
     }
 
-    @PatchMapping("/{id}/contents")
+    @PostMapping("/{id}/contents")
     public ResponseEntity<CommentResponseDto> contents(@PathVariable @Positive Long id,
                                                        @RequestBody @Valid GenericDataDto<String> contentsDto) {
         if (contentsDto == null) throw new InvalidRequestException("Invalid request.");

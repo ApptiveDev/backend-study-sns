@@ -9,6 +9,7 @@ import com.example.devSns.dto.post.PostResponseDto;
 import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
 import com.example.devSns.repository.CommentRepository;
+import com.example.devSns.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,13 +23,17 @@ import java.util.Optional;
 @Transactional
 public class CommentService {
     private final CommentRepository commentRepository;
-
+    private final PostRepository postRepository;
     @Autowired
-    public CommentService(CommentRepository commentRepository) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository) {
         this.commentRepository = commentRepository;
+        this.postRepository = postRepository;
     }
 
     public Long join(CommentCreateDto commentCreateDto) {
+        postRepository.findById(commentCreateDto.post_id())
+                .orElseThrow(()->new InvalidRequestException("Invalid Request."));
+
         Comment comment = new Comment();
         comment.setContent(commentCreateDto.content());
         comment.setPostId(commentCreateDto.post_id());

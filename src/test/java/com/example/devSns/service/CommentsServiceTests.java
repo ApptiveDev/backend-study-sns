@@ -9,6 +9,7 @@ import com.example.devSns.dto.comment.CommentResponseDto;
 import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
 import com.example.devSns.repository.CommentRepository;
+import com.example.devSns.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,12 +32,12 @@ class CommentServiceTest {
 
     @Mock
     CommentRepository commentRepository;
-
+    PostRepository postRepository;
     CommentService commentService;
 
     @BeforeEach
     void setUp() {
-        commentService = new CommentService(commentRepository);
+        commentService = new CommentService(commentRepository, postRepository);
     }
 
     private static Comment mkComment(

@@ -164,8 +164,8 @@
         return apiFetch('/posts', { query });
     }
     function getPost(id) { return apiFetch(`/posts/${id}`); }
-    function likePost(id) { return apiFetch(`/posts/${id}/likes`, { method: 'PATCH' }); }
-    function updatePostContent(id, content) { return apiFetch(`/posts/${id}/contents`, { method:'PATCH', body:{ data: content } }); }
+    function likePost(id) { return apiFetch(`/posts/${id}/likes`, { method: 'POST' }); }
+    function updatePostContent(id, content) { return apiFetch(`/posts/${id}/contents`, { method:'POST', body:{ data: content } }); }
     function createPost(content, user_name) { return apiFetch('/posts', { method:'POST', body:{ content, user_name } }); }
 
     function listComments(postId, before) {
@@ -174,8 +174,8 @@
         return apiFetch(`/comments/postGroup/${postId}`, { query });
     }
     function createComment(post_id, content, user_name) { return apiFetch('/comments', { method:'POST', body:{ post_id, content, user_name } }); }
-    function likeComment(id) { return apiFetch(`/comments/${id}/likes`, { method:'PATCH' }); }
-    function updateCommentContent(id, content) { return apiFetch(`/comments/${id}/contents`, { method:'PATCH', body:{ data: content } }); }
+    function likeComment(id) { return apiFetch(`/comments/${id}/likes`, { method:'POST' }); }
+    function updateCommentContent(id, content) { return apiFetch(`/comments/${id}/contents`, { method:'POST', body:{ data: content } }); }
     function deleteComment(id) { return apiFetch(`/comments/${id}`, { method:'DELETE' }); }
 
     // ---------- State ----------

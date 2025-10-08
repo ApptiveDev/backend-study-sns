@@ -76,13 +76,13 @@ public class PostController {
         return ResponseEntity.ok().body(posts);
     }
 
-    @PatchMapping("/{id}/likes")
+    @PostMapping("/{id}/likes")
     public ResponseEntity<PostResponseDto> like(@PathVariable @Positive Long id) {
         PostResponseDto post = postService.like(id);
         return ResponseEntity.ok().body(post);
     }
 
-    @PatchMapping("/{id}/contents")
+    @PostMapping("/{id}/contents")
     public ResponseEntity<PostResponseDto> contents(
             @PathVariable @Positive Long id, @RequestBody GenericDataDto<String> contentsDto) {
 
