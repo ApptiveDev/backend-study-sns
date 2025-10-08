@@ -8,6 +8,7 @@ import com.example.devSns.dto.comment.CommentResponseDto;
 import com.example.devSns.dto.post.PostResponseDto;
 import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
+import com.example.devSns.exception.RequestConflictException;
 import com.example.devSns.repository.CommentRepository;
 import com.example.devSns.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,50 +51,28 @@ public class CommentService {
 
     public void delete(Long id) {
         int affectedRows = commentRepository.deleteById(id);
-        if (affectedRows == 0) throw new NotFoundException("comment not found");
-    }
-
-    private CommentResponseDto update(CommentResponseDto commentResponseDto) {
-        Comment comment = new Comment();
-        comment.setId(commentResponseDto.id());
-        comment.setPostId(commentResponseDto.post_id());
-        comment.setContent(commentResponseDto.content());
-        comment.setUserName(commentResponseDto.user_name());
-        comment.setLikeCount(commentResponseDto.like_count());
-        comment.setCreatedAt(commentResponseDto.created_at());
-        comment.setUpdatedAt(commentResponseDto.updated_at());
-        int affectedRows = commentRepository.updateById(comment, commentResponseDto.id());
-        if (affectedRows == 0) throw new NotFoundException("comment not found");
-        return CommentResponseDto.from(comment);
+        if (affectedRows == 0)
+            throw new NotFoundException("comment not found");
     }
 
     public CommentResponseDto updateContent(Long id, GenericDataDto<String> contentsDto) {
-        if (contentsDto.data() == null) throw new InvalidRequestException("Invalid Request.");
-        CommentResponseDto commentResponseDto = findOne(id);
+        if (contentsDto.data() == null) 
+            throw new InvalidRequestException("Invalid Request.");
 
-        return update(new CommentResponseDto(
-                commentResponseDto.id(),
-                commentResponseDto.post_id(),
-                contentsDto.data(),
-                commentResponseDto.user_name(),
-                commentResponseDto.like_count(),
-                commentResponseDto.created_at(),
-                commentResponseDto.updated_at()
-        ));
+        CommentResponseDto commentResponseDto = findOne(id);
+        int affectedRows = commentRepository.updateContentByIdAndUpdatedAt(contentsDto.data(), id, commentResponseDto.updated_at());
+        if (affectedRows == 0)
+            throw new RequestConflictException("request conflict.");
+
+        return findOne(id);
     }
 
     public CommentResponseDto like(Long id) {
-        CommentResponseDto commentResponseDto = findOne(id);
+        int affectedRows = commentRepository.incrementLikeById(id);
+        if (affectedRows == 0)
+            throw new NotFoundException("comment not found");
 
-        return update(new CommentResponseDto(
-                commentResponseDto.id(),
-                commentResponseDto.post_id(),
-                commentResponseDto.content(),
-                commentResponseDto.user_name(),
-                commentResponseDto.like_count() + 1,
-                commentResponseDto.created_at(),
-                commentResponseDto.updated_at()
-        ));
+        return findOne(id);
     }
 
     public PaginatedDto<List<CommentResponseDto>> findAsPaginated(GenericDataDto<LocalDateTime> localDateTimeDto, Long postId) {

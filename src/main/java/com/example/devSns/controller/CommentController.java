@@ -73,7 +73,7 @@ public class CommentController {
         return ResponseEntity.ok().body(comment);
     }
 
-    @PostMapping("/{id}/contents")
+    @PatchMapping("/{id}/contents")
     public ResponseEntity<CommentResponseDto> contents(@PathVariable @Positive Long id,
                                                        @RequestBody @Valid GenericDataDto<String> contentsDto) {
         if (contentsDto == null) throw new InvalidRequestException("Invalid request.");

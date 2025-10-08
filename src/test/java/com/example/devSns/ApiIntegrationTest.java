@@ -118,7 +118,7 @@ class ApiIntegrationTest {
                             .andReturn().getResponse().getContentAsString()
             ).get("data")).longValue();
 
-            mvc.perform(post("/posts/{id}/contents", id)
+            mvc.perform(patch("/posts/{id}/contents", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJson(new GenericDataDto<>("new content"))))
                     .andExpect(status().isOk())
@@ -239,7 +239,7 @@ class ApiIntegrationTest {
                             .andReturn().getResponse().getContentAsString()
             ).get("data")).longValue();
 
-            mvc.perform(post("/comments/{id}/contents", id)
+            mvc.perform(patch("/comments/{id}/contents", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJson(new GenericDataDto<>("new"))))
                     .andExpect(status().isOk())

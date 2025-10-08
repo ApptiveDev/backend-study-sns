@@ -83,6 +83,20 @@ public class CommentRepository {
                 .update();
     }
 
+    public int incrementLikeById(Long id) {
+        return jdbcClient.sql("UPDATE COMMENTS SET LIKE_COUNT = LIKE_COUNT+1 WHERE id = ?")
+            .params(id)
+            .update();
+    }
+
+    public int updateContentByIdAndUpdatedAt(String content, Long id, LocalDateTime updatedAt) {
+        return jdbcClient.sql("UPDATE COMMENTS SET CONTENT=? WHERE id = ? AND updated_at = ?")
+            .params(content, id, updatedAt)
+            .update();
+    }
+
+
+
     public int deleteById(Long id) {
         return jdbcClient.sql("DELETE FROM COMMENTS WHERE ID=:id")
                 .param("id", id)
@@ -116,16 +130,4 @@ public class CommentRepository {
         );
     }
 
-//    private RowMapper<Post> postRowMapper() {
-//        return (rs, rowNum) -> {
-//            Post post = new Post();
-//            post.setId(rs.getLong("id"));
-//            post.setUserName(rs.getString("user_name"));
-//            post.setContent(rs.getString("content"));
-//            post.setLikeCount(rs.getLong("like_count"));
-//            post.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
-//            post.setUpdatedAt(rs.getObject("updated_at", LocalDateTime.class));
-//            return post;
-//        };
-//    }
 }

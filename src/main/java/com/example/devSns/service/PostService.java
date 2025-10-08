@@ -8,6 +8,7 @@ import com.example.devSns.dto.post.PostCreateDto;
 import com.example.devSns.dto.post.PostResponseDto;
 import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
+import com.example.devSns.exception.RequestConflictException;
 import com.example.devSns.repository.CommentRepository;
 import com.example.devSns.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,6 @@ public class PostService {
     public Long join(PostCreateDto postCreateDto) {
         Post post = new Post();
         post.setContent(postCreateDto.content());
-//        post.setLikeCount(0L);
         post.setUserName(postCreateDto.user_name());
         postRepository.save(post);
         return post.getId();
@@ -49,49 +49,29 @@ public class PostService {
 
     public void delete(Long id) {
         int affectedRows = postRepository.deleteById(id);
-        if (affectedRows == 0) throw new NotFoundException("post not found");
-    }
-
-    private PostResponseDto update(PostResponseDto postResponseDto) {
-        Post post = new Post();
-        post.setId(postResponseDto.id());
-        post.setContent(postResponseDto.content());
-        post.setUserName(postResponseDto.user_name());
-        post.setLikeCount(postResponseDto.like_count());
-        post.setCreatedAt(postResponseDto.created_at());
-        post.setUpdatedAt(postResponseDto.updated_at());
-        int affectedRows = postRepository.updateById(post, postResponseDto.id());
-        if (affectedRows == 0) throw new NotFoundException("post not found");
-
-        return postResponseDto;
+        if (affectedRows == 0) 
+            throw new NotFoundException("post not found");
     }
 
     public PostResponseDto updateContent(Long id, GenericDataDto<String> contentsDto) {
-        if (contentsDto.data() == null) throw new InvalidRequestException("Invalid request.");
-        PostResponseDto postResponseDto = findOne(id);
+        if (contentsDto.data() == null) 
+            throw new InvalidRequestException("Invalid request.");
 
-        return update(new PostResponseDto(
-                postResponseDto.id(),
-                contentsDto.data(),
-                postResponseDto.user_name(),
-                postResponseDto.like_count(),
-                postResponseDto.created_at(),
-                postResponseDto.updated_at(),
-                postResponseDto.comments()
-        ));
+        PostResponseDto postResponseDto = findOne(id);
+        int affectedRows = postRepository.updateContentByIdAndUpdatedAt(contentsDto.data(), id, postResponseDto.updated_at());
+        
+        if (affectedRows == 0) 
+            throw new RequestConflictException("request conflict.");
+
+        return findOne(id);
     }
 
     public PostResponseDto like(Long id) {
-        PostResponseDto postResponseDto = findOne(id);
-        return update(new PostResponseDto(
-                postResponseDto.id(),
-                postResponseDto.content(),
-                postResponseDto.user_name(),
-                postResponseDto.like_count() + 1,
-                postResponseDto.created_at(),
-                postResponseDto.updated_at(),
-                postResponseDto.comments()
-        ));
+        int affectedRows = postRepository.incrementLikeById(id);
+        if (affectedRows == 0) 
+            throw new NotFoundException("post not found");
+
+        return findOne(id);
     }
 
     public PaginatedDto<List<PostResponseDto>> findAsPaginated(GenericDataDto<LocalDateTime> localDateTimeDto) {

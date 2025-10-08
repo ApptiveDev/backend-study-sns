@@ -59,12 +59,6 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PutMapping
-//    public ResponseEntity<PostResponseDto> update(@RequestBody @Valid PostResponseDto postResponseDto) {
-//        PostResponseDto updated = postService.update(postResponseDto);
-//        return ResponseEntity.ok().body(updated);
-//    }
-
 
     @GetMapping
     public ResponseEntity<PaginatedDto<List<PostResponseDto>>> getAsPaginated(
@@ -82,7 +76,7 @@ public class PostController {
         return ResponseEntity.ok().body(post);
     }
 
-    @PostMapping("/{id}/contents")
+    @PatchMapping("/{id}/contents")
     public ResponseEntity<PostResponseDto> contents(
             @PathVariable @Positive Long id, @RequestBody GenericDataDto<String> contentsDto) {
 
