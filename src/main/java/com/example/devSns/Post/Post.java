@@ -1,5 +1,6 @@
 package com.example.devSns.Post;
 
+import com.example.devSns.Post.DTO.UpdatePostRequestDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,5 +28,10 @@ public class Post {
 
     private LocalDateTime updatedAt;
 
+    public void Update(UpdatePostRequestDTO DTO){
+        this.content = DTO.content();
+        this.username = DTO.username();
+        this.updatedAt = LocalDateTime.now();
+    }
 
 }
