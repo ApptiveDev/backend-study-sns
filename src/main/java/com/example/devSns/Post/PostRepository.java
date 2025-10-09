@@ -24,14 +24,14 @@ public class PostRepository {
 
     // create
     public void save(Post entity) {
-        String insertSql ="INSERT INTO post (content, like_count,username,created_at, updated_at) " +
-                "VALUES (?,?,?,?,?) )";
+        String insertSql = "INSERT INTO post (content, like_count, username, created_at, updated_at) " +
+                "VALUES (?,?,?,?,?)"; // 문제였던 마지막 ')' 제거
         jdbcTemplate.update(insertSql,
                 entity.getContent(),
                 entity.getLikeCount(),
                 entity.getUsername(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
         );
     }
 
