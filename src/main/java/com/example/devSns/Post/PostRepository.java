@@ -32,20 +32,49 @@ public class PostRepository {
         );
     }
 
-    //read 게시글 목록조회
+    // READ - 전체 조회
     public List<Post> findAll() {
-        String selectSql = "SELECT * FROM post";
+        String selectSql = "SELECT " +
+                "id, " +
+                "content, " +
+                "like_count AS likeCount, " +
+                "username, " +
+                "created_at AS createdAt, " +
+                "updated_at AS updatedAt " +
+                "FROM post";
+
         return jdbcTemplate.query(selectSql, new BeanPropertyRowMapper<>(Post.class));
     }
-    //read 게시글 단일 조회
-    public Post findById(Long id) {
-        String selectSql = "SELECT * FROM post WHERE id = ?";
-        return jdbcTemplate.queryForObject(selectSql, new BeanPropertyRowMapper<>(Post.class), id);
+
+
+    public Optional<Post> findById(Long id) {
+        String selectSql = "SELECT " +
+                "id, " +
+                "content, " +
+                "like_count AS likeCount, " +
+                "username, " +
+                "created_at AS createdAt, " +
+                "updated_at AS updatedAt " +
+                "FROM post WHERE id = ?";
+
+        try {
+            Post post = jdbcTemplate.queryForObject(selectSql, new BeanPropertyRowMapper<>(Post.class), id);
+            return Optional.of(post);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty(); // 조회 결과가 없으면 Optional.empty()
+        }
     }
-    // 게시글 수정
-    public void update(Long id, Post entity) {
-        String updateSql ="UPDATE post SET content = ?, like_count = ?, updated_at = ? WHERE id = ?";
-        jdbcTemplate.update(updateSql, entity.getContent(), entity.getLikeCount(), LocalDateTime.now(), id);
+
+
+    // UPDATE
+    public void update(Long id, Post post) {
+        String updateSql = "UPDATE post SET content = ?, username = ?, updated_at = ? WHERE id = ?";
+        jdbcTemplate.update(updateSql,
+                post.getContent(),
+                post.getUsername(),
+                LocalDateTime.now(), // 엔티티에서 관리하는 updatedAt 사용
+                id
+        );
     }
     public void delete(Long id) {
         String deleteSql = "DELETE FROM post WHERE id = ?";

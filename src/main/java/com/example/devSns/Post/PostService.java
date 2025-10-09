@@ -1,6 +1,8 @@
 package com.example.devSns.Post;
 
-
+import com.example.devSns.Post.DTO.AddPostRequestDTO;
+import com.example.devSns.Post.DTO.GetPostResponseDTO;
+import com.example.devSns.Post.DTO.UpdatePostRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +28,17 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public Post findById(Long id) {
-        return postRepository.findById(id);
+    public GetPostResponseDTO findById(Long id) {
+
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+
+        return new GetPostResponseDTO(
+                post.getContent(),
+                post.getLikeCount(),
+                post.getUsername(),
+                post.getCreatedAt()
+        );
     }
 
     public List<Post> findAll() {
