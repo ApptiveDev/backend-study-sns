@@ -49,8 +49,12 @@ public class PostService {
         postRepository.delete(id);
     }
 
-    public void update(Post post) {
-        postRepository.save(post);
+    public void updatePost(Long id , UpdatePostRequestDTO DTO) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() ->new EntityNotFoundException("게시글이 존재하지 않습니다"));
+
+        post.Update(DTO);
+        postRepository.update(id,post);
     }
 
 }
