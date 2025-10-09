@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
+description = 'devSns CRUD project'
 
 java {
 	toolchain {
@@ -19,7 +19,24 @@ repositories {
 }
 
 dependencies {
+	// --- 기본 Web ---
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// --- JPA + H2 ---
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'com.h2database:h2'
+
+	// --- Lombok (선택, 편의용) ---
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// --- Validation (요청 DTO 검증) ---
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// --- Thymeleaf (웹 화면 사용할 경우만, REST면 생략 가능) ---
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// --- 테스트 ---
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
