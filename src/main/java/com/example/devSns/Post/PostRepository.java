@@ -38,16 +38,16 @@ public class PostRepository {
         return jdbcTemplate.query(selectSql, new BeanPropertyRowMapper<>(Post.class));
     }
     //read 게시글 단일 조회
-    public Post findById(int id) {
+    public Post findById(Long id) {
         String selectSql = "SELECT * FROM post WHERE id = ?";
         return jdbcTemplate.queryForObject(selectSql, new BeanPropertyRowMapper<>(Post.class), id);
     }
     // 게시글 수정
-    public void update(int id, Post entity) {
+    public void update(Long id, Post entity) {
         String updateSql ="UPDATE post SET content = ?, like_count = ?, updated_at = ? WHERE id = ?";
         jdbcTemplate.update(updateSql, entity.getContent(), entity.getLikeCount(), LocalDateTime.now(), id);
     }
-    public void delete(int id) {
+    public void delete(Long id) {
         String deleteSql = "DELETE FROM post WHERE id = ?";
         jdbcTemplate.update(deleteSql, id);
     }
