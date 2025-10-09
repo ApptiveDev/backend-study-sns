@@ -14,8 +14,15 @@ public class PostService {
     public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
-
-    public void save(Post post) {
+    public void createPost(AddPostRequestDTO DTO) {
+        Post post = new Post(
+                null,
+                DTO.content(),
+                0L,
+                DTO.username(),
+                LocalDateTime.now(),
+                null
+        );
         postRepository.save(post);
     }
 
