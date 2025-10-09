@@ -8,14 +8,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity // 이 클래스가 데이터베이스 테이블과 매핑됨을 나타냅니다.
+@Entity // 이 클래스가 데이터베이스 테이블과 매핑
 @Getter
 @Setter
-@NoArgsConstructor // 기본 생성자를 자동으로 만들어줍니다.
+@NoArgsConstructor
 public class Post {
 
-    @Id // 기본 키(Primary Key)임을 나타냅니다.
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ID가 자동으로 생성되고 증가함을 나타냅니다.
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
