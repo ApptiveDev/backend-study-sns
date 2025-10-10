@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Builder
 public record PostResponse(
-   Integer id,
+   Long id,
    String username,
    String content,
    Integer like,

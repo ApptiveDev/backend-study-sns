@@ -66,8 +66,8 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse update(PostDTO postDTO) { // 수정된 post 반영
-        Posts postEntity = postRepository.findById(postDTO.id())
+    public PostResponse update(Long id, PostDTO postDTO) { // 수정된 post 반영
+        Posts postEntity = postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("수정하려는 Post를 찾을 수 없습니다."));
         postEntity.setContent(postDTO.content());
         postEntity.setUpdateat(LocalDateTime.now());
@@ -75,8 +75,8 @@ public class PostService {
     }
 
     @Transactional
-    public void delete(PostDTO postDTO) { // post 삭제
-        Posts object = postRepository.findById(postDTO.id())
+    public void delete(Long id) { // post 삭제
+        Posts object = postRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("삭제하려는 Post를 찾을 수 없습니다."));
         postRepository.delete(object);
     }

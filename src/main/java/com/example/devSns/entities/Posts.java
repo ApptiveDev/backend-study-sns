@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Posts {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
 
     @NotNull
     @Column

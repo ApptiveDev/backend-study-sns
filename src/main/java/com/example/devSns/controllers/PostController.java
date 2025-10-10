@@ -35,15 +35,15 @@ public class PostController {
         return new ResponseEntity<>(postResponse, HttpStatus.CREATED);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<PostResponse> updatePost(@RequestBody PostDTO postDTO) {
-        PostResponse postResponse = postService.update(postDTO);
+    @PutMapping("/update/{id}")
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostDTO postDTO) {
+        PostResponse postResponse = postService.update(id, postDTO);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deletePost(@RequestBody PostDTO postDTO) {
-        postService.delete(postDTO);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deletePost(@PathVariable Long id) {
+        postService.delete(id);
         return new ResponseEntity<>("Post deleted", HttpStatus.OK);
     }
 
