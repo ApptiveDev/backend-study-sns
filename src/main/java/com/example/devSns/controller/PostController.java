@@ -41,9 +41,9 @@ public class PostController {
     }
 
     // 4. 게시글 수정 (PUT)
-    @PutMapping("/{id}")
-    public PostResponseDto updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto) {
-        Post updatedPost = postService.updatePost(id, requestDto);
+    @PutMapping
+    public PostResponseDto updatePost(@RequestBody PostRequestDto requestDto) {
+        Post updatedPost = postService.updatePost(requestDto);
         return new PostResponseDto(updatedPost);
     }
 

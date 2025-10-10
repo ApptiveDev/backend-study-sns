@@ -35,10 +35,11 @@ public class PostService {
 
     // 게시글 수정
     @Transactional
-    public Post updatePost(Long id, PostRequestDto requestDto) {
-        Post post = getPostById(id);
-        post.setTitle(requestDto.getTitle());
-        post.setContent(requestDto.getContent());
+    public Post updatePost(PostRequestDto requestDto) {
+        Post post = getPostById(requestDto.getId());
+//        post.setTitle(requestDto.getTitle());
+//        post.setContent(requestDto.getContent()); 위험함! 무결성 해칠 수 있음
+        post.update(requestDto.getTitle(), requestDto.getContent()); // 엔티티 메서드 사용
         return postRepository.save(post);
     }
 
