@@ -1,5 +1,6 @@
 package com.example.devSns.dto;
 
+import com.example.devSns.entities.Posts;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -12,4 +13,15 @@ public record PostResponse(
    Integer like,
    LocalDateTime createAt,
    LocalDateTime updateAt
-) {}
+) {
+    public static PostResponse entityToDto(Posts post) {
+        return PostResponse.builder()
+                .id(post.getId())
+                .username(post.getUsername())
+                .content(post.getContent())
+                .like(post.getLikeit())
+                .createAt(post.getCreateat())
+                .updateAt(post.getUpdateat())
+                .build();
+    }
+}

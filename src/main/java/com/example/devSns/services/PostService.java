@@ -13,29 +13,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.devSns.dto.PostDTO.dtoToEntity;
+import static com.example.devSns.dto.PostResponse.entityToDto;
+
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
-
-    public Posts dtoToEntity(PostDTO postDTO) {
-        Posts postEntity = Posts.builder()
-                .username(postDTO.username())
-                .content(postDTO.content())
-                .build();
-        return postEntity;
-    }
-
-    public PostResponse entityToDto(Posts post) {
-        return PostResponse.builder()
-                .id(post.getId())
-                .username(post.getUsername())
-                .content(post.getContent())
-                .like(post.getLikeit())
-                .createAt(post.getCreateat())
-                .updateAt(post.getUpdateat())
-                .build();
-    }
 
     @Transactional // 트랜잭션 보장
     public PostResponse save(PostDTO postDTO) { // post insert
