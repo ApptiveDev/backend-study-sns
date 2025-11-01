@@ -1,9 +1,6 @@
 package com.example.devSns.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +14,11 @@ public class Replies {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
+    @JoinColumn(name = "posts_id")
+    @ManyToOne
+    @NotNull
+    private Posts posts;
 
     @NotNull
     private String username;
