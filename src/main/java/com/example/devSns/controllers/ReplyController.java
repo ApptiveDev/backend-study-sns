@@ -17,12 +17,12 @@ public class ReplyController {
 
     @GetMapping("/{postId}/comments")
     public ResponseEntity<List<ReplyResponse>> getComments(@PathVariable long postId) {
-
+        return null;
     }
 
     @PostMapping("/{postId}/comment")
     public ResponseEntity<List<ReplyResponse>> writeComment(@PathVariable long postId, ReplyDTO comment) {
-
+        return null;
     }
 
 
