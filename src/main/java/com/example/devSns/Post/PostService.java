@@ -17,12 +17,12 @@ public class PostService {
     public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
-    public void createPost(AddPostRequestDto DTO) {
+    public void createPost(AddPostRequestDto Dto) {
         Post post = new Post(
                 null,
-                DTO.content(),
+                Dto.content(),
                 0L,
-                DTO.username(),
+                Dto.username(),
                 LocalDateTime.now(),
                 null
         );
@@ -50,12 +50,12 @@ public class PostService {
         postRepository.delete(id);
     }
 
-    public void updatePost(Long id , UpdatePostRequestDto DTO) {
+    public void updatePost(Long id , UpdatePostRequestDto Dto) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() ->new EntityNotFoundException("게시글이 존재하지 않습니다"));
 
-        post.Update(DTO);
-        postRepository.update(id,post);
+        post.Update(Dto);
+        postRepository.save(post); // JDBC에서는 Update 쿼리가 나오는 메소드로 사용했지만 변경감지로 처리
     }
 
 }

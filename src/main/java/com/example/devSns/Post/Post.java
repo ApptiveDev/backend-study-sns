@@ -28,9 +28,9 @@ public class Post {
 
     private LocalDateTime updatedAt; // 수정되는 시점에 변경
 
-    public void Update(UpdatePostRequestDto DTO){
-        this.content = DTO.content();
-        this.username = DTO.username();
+    public void Update(UpdatePostRequestDto Dto){
+        this.content = Dto.content();
+        this.userName = Dto.username();
         this.updatedAt = LocalDateTime.now();
     }
 

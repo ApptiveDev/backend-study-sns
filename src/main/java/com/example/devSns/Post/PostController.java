@@ -20,8 +20,8 @@ public class PostController {
     }
 
     @PostMapping()
-    public ResponseEntity<Void> createPost(@RequestBody AddPostRequestDto DTO) {
-        postService.createPost(DTO);
+    public ResponseEntity<Void> createPost(@RequestBody AddPostRequestDto Dto) {
+        postService.createPost(Dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -36,9 +36,9 @@ public class PostController {
 
     @PatchMapping("/{post_id}")
     public void updatePost(
-            @RequestBody UpdatePostRequestDto DTO,
+            @RequestBody UpdatePostRequestDto Dto,
             @PathVariable(name ="post_id") Long id) {
-        postService.updatePost(id, DTO);
+        postService.updatePost(id, Dto);
     }
 
     @DeleteMapping("/{post_id}")
