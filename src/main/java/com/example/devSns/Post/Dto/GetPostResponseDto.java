@@ -1,8 +1,8 @@
-package com.example.devSns.Post.DTO;
+package com.example.devSns.Post.Dto;
 
 import java.time.LocalDateTime;
 
-public record GetPostResponseDTO(
+public record GetPostResponseDto(
         String content,
         Long likeCount,
         String username,

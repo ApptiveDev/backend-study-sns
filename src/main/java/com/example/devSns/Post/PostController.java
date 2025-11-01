@@ -1,8 +1,8 @@
 package com.example.devSns.Post;
 
-import com.example.devSns.Post.DTO.AddPostRequestDTO;
-import com.example.devSns.Post.DTO.GetPostResponseDTO;
-import com.example.devSns.Post.DTO.UpdatePostRequestDTO;
+import com.example.devSns.Post.Dto.AddPostRequestDto;
+import com.example.devSns.Post.Dto.GetPostResponseDto;
+import com.example.devSns.Post.Dto.UpdatePostRequestDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +20,7 @@ public class PostController {
     }
 
     @PostMapping()
-    public ResponseEntity<Void> createPost(@RequestBody AddPostRequestDTO DTO) {
+    public ResponseEntity<Void> createPost(@RequestBody AddPostRequestDto DTO) {
         postService.createPost(DTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -30,13 +30,13 @@ public class PostController {
         return postService.findAll();
     }
     @GetMapping("/{post_id}")
-    public GetPostResponseDTO getPostById(@PathVariable(name ="post_id") long id) {
+    public GetPostResponseDto getPostById(@PathVariable(name ="post_id") long id) {
         return postService.findById(id);
     }
 
     @PatchMapping("/{post_id}")
     public void updatePost(
-            @RequestBody UpdatePostRequestDTO DTO,
+            @RequestBody UpdatePostRequestDto DTO,
             @PathVariable(name ="post_id") Long id) {
         postService.updatePost(id, DTO);
     }

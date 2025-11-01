@@ -1,8 +1,8 @@
 package com.example.devSns.Post;
 
-import com.example.devSns.Post.DTO.AddPostRequestDTO;
-import com.example.devSns.Post.DTO.GetPostResponseDTO;
-import com.example.devSns.Post.DTO.UpdatePostRequestDTO;
+import com.example.devSns.Post.Dto.AddPostRequestDto;
+import com.example.devSns.Post.Dto.GetPostResponseDto;
+import com.example.devSns.Post.Dto.UpdatePostRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ public class PostService {
     public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
-    public void createPost(AddPostRequestDTO DTO) {
+    public void createPost(AddPostRequestDto DTO) {
         Post post = new Post(
                 null,
                 DTO.content(),
@@ -29,12 +29,12 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public GetPostResponseDTO findById(Long id) {
+    public GetPostResponseDto findById(Long id) {
 
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
 
-        return new GetPostResponseDTO(
+        return new GetPostResponseDto(
                 post.getContent(),
                 post.getLikeCount(),
                 post.getUsername(),
@@ -50,7 +50,7 @@ public class PostService {
         postRepository.delete(id);
     }
 
-    public void updatePost(Long id , UpdatePostRequestDTO DTO) {
+    public void updatePost(Long id , UpdatePostRequestDto DTO) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() ->new EntityNotFoundException("게시글이 존재하지 않습니다"));
 

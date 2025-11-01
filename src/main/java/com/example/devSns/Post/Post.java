@@ -1,6 +1,6 @@
 package com.example.devSns.Post;
 
-import com.example.devSns.Post.DTO.UpdatePostRequestDTO;
+import com.example.devSns.Post.Dto.UpdatePostRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Setter
 public class Post {
 
-    private Long id;
+    private Long id; // 기본 키 생성 전략
 
     private String content;
 
@@ -24,11 +24,11 @@ public class Post {
 
     private String username;
 
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt; // 생성 시점
 
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt; // 수정되는 시점에 변경
 
-    public void Update(UpdatePostRequestDTO DTO){
+    public void Update(UpdatePostRequestDto DTO){
         this.content = DTO.content();
         this.username = DTO.username();
         this.updatedAt = LocalDateTime.now();
