@@ -1,11 +1,14 @@
 package com.example.devSns.Post;
 
+import com.example.devSns.Comment.Comment;
 import com.example.devSns.Post.Dto.UpdatePostRequestDto;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -31,6 +34,11 @@ public class Post {
     private LocalDateTime createdAt; // 생성 시점
 
     private LocalDateTime updatedAt; // 수정되는 시점에 변경
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Comment> comments;
+
 
     public void Update(UpdatePostRequestDto Dto){
         this.content = Dto.content();
