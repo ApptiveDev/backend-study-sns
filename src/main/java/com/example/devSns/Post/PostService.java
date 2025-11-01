@@ -6,7 +6,6 @@ import com.example.devSns.Post.Dto.UpdatePostRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 @Service
 public class PostService {
@@ -19,12 +18,8 @@ public class PostService {
     }
     public void createPost(AddPostRequestDto Dto) {
         Post post = new Post(
-                null,
                 Dto.content(),
-                0L,
-                Dto.username(),
-                LocalDateTime.now(),
-                null
+                Dto.username()
         );
         postRepository.save(post);
     }
@@ -37,7 +32,7 @@ public class PostService {
         return new GetPostResponseDto(
                 post.getContent(),
                 post.getLikeCount(),
-                post.getUsername(),
+                post.getUserName(),
                 post.getCreatedAt()
         );
     }
@@ -47,7 +42,10 @@ public class PostService {
     }
 
     public void delete(Long id) {
-        postRepository.delete(id);
+        Post post = postRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("삭제하려는 게시글이 존재하지 않습니다"));
+
+        postRepository.delete(post);
     }
 
     public void updatePost(Long id , UpdatePostRequestDto Dto) {
