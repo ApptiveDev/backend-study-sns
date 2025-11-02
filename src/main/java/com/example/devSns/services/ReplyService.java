@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +43,21 @@ public class ReplyService {
         return ReplyResponse.entityToDTO(replyEntity);
     }
 
+    @Transactional
+    public ReplyResponse updateReply(@PathVariable long postId, long userId, ReplyDTO reply) {
+        Posts post = postRepository.findById(postId).orElseThrow();
+        Users user = userRepository.findById(userId);
+        Replies replyEntity = ReplyDTO.dtoToEntity(post, user, reply);
+        replyRepository.save(replyEntity);
+        return ReplyResponse.entityToDTO(replyEntity);
+    }
 
+    @Transactional
+    public String deleteReply(@PathVariable long postId, long userId) {
+        Posts post = postRepository.findById(postId).orElseThrow();
+        Users user = userRepository.findById(userId);
+        Replies replyEntity = replyRepository.findById(postId).orElseThrow();
+        replyRepository.delete(replyEntity);
+        return "성공적으로 삭제되었습니다";
+    }
 }

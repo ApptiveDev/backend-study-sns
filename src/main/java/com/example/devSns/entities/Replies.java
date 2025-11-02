@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,4 +28,10 @@ public class Replies {
 
     @NotNull
     private String reply;
+
+    @NotNull
+    private LocalDateTime createAt;
+
+    @NotNull
+    private LocalDateTime updateAt;
 }

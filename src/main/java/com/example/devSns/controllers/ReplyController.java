@@ -20,10 +20,18 @@ public class ReplyController {
         return null;
     }
 
-    @PostMapping("/{postId}/comment")
+    @PostMapping("/{postId}")
     public ResponseEntity<List<ReplyResponse>> writeComment(@PathVariable long postId, long userId, ReplyDTO comment) {
         return null;
     }
 
+    @PatchMapping("/{postid}")
+    public ResponseEntity<ReplyResponse> updateComment(@PathVariable long postId, long userId, ReplyDTO comment) {
+        return null;
+    }
 
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<String> deleteComment(@PathVariable long postId, long userId) {
+        return null;
+    }
 }
