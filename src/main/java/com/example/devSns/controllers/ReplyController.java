@@ -21,7 +21,7 @@ public class ReplyController {
     }
 
     @PostMapping("/{postId}/comment")
-    public ResponseEntity<List<ReplyResponse>> writeComment(@PathVariable long postId, ReplyDTO comment) {
+    public ResponseEntity<List<ReplyResponse>> writeComment(@PathVariable long postId, long userId, ReplyDTO comment) {
         return null;
     }
 

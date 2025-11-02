@@ -2,13 +2,12 @@ package com.example.devSns.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @Builder
 public class Replies {
     @Id
@@ -20,8 +19,10 @@ public class Replies {
     @NotNull
     private Posts posts;
 
+    @JoinColumn(name = "users_id")
+    @ManyToOne
     @NotNull
-    private String username;
+    private Users users;
 
     @NotNull
     private String reply;
