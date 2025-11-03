@@ -46,18 +46,4 @@ public class PostController {
         postService.delete(id);
         return new ResponseEntity<>("Post deleted", HttpStatus.OK);
     }
-
-    @ExceptionHandler
-    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
-        ResponseEntity<String> response =
-                new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        return response;
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<String> handleDataAccessException(DataAccessException e) {
-        ResponseEntity<String> response =
-                new ResponseEntity<>("DB 오류", HttpStatus.INTERNAL_SERVER_ERROR);
-        return response;
-    }
 }
