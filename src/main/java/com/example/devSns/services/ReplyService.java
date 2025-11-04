@@ -26,7 +26,7 @@ public class ReplyService {
     @Transactional
     public List<ReplyResponse> replyGetAll(@PathVariable long postId) {
         Posts post = postRepository.findById(postId).orElseThrow();
-        List<Replies> replies = replyRepository.findByPostId(postId);
+        List<Replies> replies = replyRepository.findByPosts(post);
         List<ReplyResponse> repliesResponse = new ArrayList<>();
         for (Replies reply:  replies) {
             repliesResponse.add(ReplyResponse.entityToDTO(reply));
