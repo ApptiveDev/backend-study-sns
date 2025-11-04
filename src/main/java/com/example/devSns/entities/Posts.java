@@ -20,9 +20,10 @@ public class Posts {
     @Column
     private String content;
 
+    @JoinColumn(name = "users_id")
+    @ManyToOne
     @NotNull
-    @Column
-    private String username;
+    private Users users;
 
     @Column
     private int likeit;

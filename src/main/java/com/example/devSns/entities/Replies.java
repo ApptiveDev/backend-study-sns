@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -34,4 +36,7 @@ public class Replies {
 
     @NotNull
     private LocalDateTime updateAt;
+
+    @OneToMany(mappedBy = "posts", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Replies> replies = new ArrayList<>();
 }

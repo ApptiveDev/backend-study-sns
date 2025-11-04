@@ -2,9 +2,7 @@ package com.example.devSns.controllers;
 
 import com.example.devSns.dto.PostDTO;
 import com.example.devSns.dto.PostResponse;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +21,9 @@ public class PostController {
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
-    @GetMapping("/show/{username}")
-    public ResponseEntity<List<PostResponse>> showPost(@PathVariable String username) {
-        List<PostResponse> post = postService.findByUsername(username);
+    @GetMapping("/show/{userID}")
+    public ResponseEntity<List<PostResponse>> showPost(@PathVariable Long userID) {
+        List<PostResponse> post = postService.findByUserID(userID);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 

@@ -3,6 +3,8 @@ package com.example.devSns.services;
 import com.example.devSns.dto.PostDTO;
 import com.example.devSns.dto.PostResponse;
 import com.example.devSns.entities.Posts;
+import com.example.devSns.entities.Users;
+import com.example.devSns.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,10 +22,12 @@ import static com.example.devSns.dto.PostResponse.entityToDto;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Transactional // 트랜잭션 보장
-    public PostResponse save(PostDTO postDTO) { // post insert
-        Posts postEntity = dtoToEntity(postDTO);
+    public PostResponse save(PostDTO postDTO) {
+        Users user = userRepository.findById(postDTO.userId()).orElseThrow(EntityNotFoundException::new);
+        Posts postEntity = dtoToEntity(postDTO, user);
         postEntity.setCreateat(LocalDateTime.now());
         Posts resultEntity = postRepository.save(postEntity);
         return entityToDto(resultEntity);
@@ -40,8 +44,8 @@ public class PostService {
     }
 
     @Transactional
-    public List<PostResponse> findByUsername(String username) { // 작성자 기준 post 조회
-        List<Posts> postsByName = postRepository.findByUsername(username);
+    public List<PostResponse> findByUserID(Long userID) { // 작성자 기준 post 조회
+        List<Posts> postsByName = postRepository.findByUsersId(userID);
         List<PostResponse> postResponses = new ArrayList<>();
         for (Posts post : postsByName) {
             postResponses.add(entityToDto(post));
