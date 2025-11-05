@@ -1,5 +1,6 @@
 package com.example.devSns.Comment;
 
+import com.example.devSns.Comment.Dto.UpdateCommentDto;
 import com.example.devSns.Post.Post;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -43,6 +44,16 @@ public class Comment {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Comment> children;
+
+    public Comment(String comment, String author) {
+        this.comment = comment;
+        this.author = author;
+    }
+
+    public void updateComment(UpdateCommentDto dto) {
+        this.comment = dto.content();
+        this.author = dto.author();
+    }
 
     @PrePersist
     protected void onCreate() {
