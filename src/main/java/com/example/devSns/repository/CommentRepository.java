@@ -22,16 +22,16 @@ public class CommentRepository {
     public CommentRepository(JdbcClient jdbcClient, DataSource dataSource) {
         this.jdbcClient = jdbcClient;
         this.insert = new SimpleJdbcInsert(dataSource)
-                .withTableName("comments")
-                .usingColumns("content", "user_name", "post_id")
-                .usingGeneratedKeyColumns("id");
+                .withTableName("COMMENTS")
+                .usingColumns("CONTENT", "USER_NAME", "POST_ID")
+                .usingGeneratedKeyColumns("ID");
     }
 
     public Comment save(Comment comment) {
         Map<String, Object> params = Map.of(
-                "content", comment.getContent(),
-                "user_name", comment.getUserName(),
-                "post_id", comment.getPostId()
+                "CONTENT", comment.getContent(),
+                "USER_NAME", comment.getUserName(),
+                "POST_ID", comment.getPostId()
         );
 
 //        comment.setId(keyHolder.getKey().longValue());
@@ -41,14 +41,14 @@ public class CommentRepository {
     }
 
     public Optional<Comment> findById(Long id) {
-        return jdbcClient.sql("SELECT * FROM COMMENTS WHERE id = :id")
+        return jdbcClient.sql("SELECT * FROM COMMENTS WHERE ID = :id")
                 .param("id", id)
                 .query(Comment.class)
                 .optional();
     }
 
     public Optional<Comment> findByUsername(String userName) {
-        return jdbcClient.sql("SELECT * FROM COMMENTS WHERE user_name = :userName")
+        return jdbcClient.sql("SELECT * FROM COMMENTS WHERE USER_NAME = :userName")
                 .param("userName", userName)
                 .query(Comment.class)
                 .optional();
@@ -61,7 +61,7 @@ public class CommentRepository {
                     SELECT *
                     FROM COMMENTS
                     WHERE CREATED_AT < :createdAt and POST_ID = :postId
-                    ORDER BY created_at DESC, id DESC
+                    ORDER BY CREATED_AT DESC, ID DESC
                     LIMIT :limit
                 """)
                 .param("createdAt", createdAt)
@@ -78,19 +78,19 @@ public class CommentRepository {
     }
 
     public int updateById(Comment comment, Long id) {
-        return jdbcClient.sql("UPDATE COMMENTS SET LIKE_COUNT = ?, CONTENT = ?, USER_NAME = ? WHERE id = ?")
+        return jdbcClient.sql("UPDATE COMMENTS SET LIKE_COUNT = ?, CONTENT = ?, USER_NAME = ? WHERE ID = ?")
                 .params(comment.getLikeCount(), comment.getContent(), comment.getUserName(), id)
                 .update();
     }
 
     public int incrementLikeById(Long id) {
-        return jdbcClient.sql("UPDATE COMMENTS SET LIKE_COUNT = LIKE_COUNT+1 WHERE id = ?")
+        return jdbcClient.sql("UPDATE COMMENTS SET LIKE_COUNT = LIKE_COUNT+1 WHERE ID = ?")
             .params(id)
             .update();
     }
 
     public int updateContentByIdAndUpdatedAt(String content, Long id, LocalDateTime updatedAt) {
-        return jdbcClient.sql("UPDATE COMMENTS SET CONTENT=? WHERE id = ? AND updated_at = ?")
+        return jdbcClient.sql("UPDATE COMMENTS SET CONTENT=? WHERE ID = ? AND UPDATED_AT = ?")
             .params(content, id, updatedAt)
             .update();
     }
@@ -110,13 +110,13 @@ public class CommentRepository {
                 SELECT c.*,
                     ROW_NUMBER() over (
                     partition by c.POST_ID
-                    ORDER BY c.CREATED_AT DESC, c.id DESC 
+                    ORDER BY c.CREATED_AT DESC, c.ID DESC 
                 ) AS rn
                 FROM COMMENTS c
                 WHERE c.POST_ID IN (:postIds)
             ) as x
             WHERE x.rn <= 5
-            ORDER BY x.POST_ID, x.CREATED_AT DESC, x.id DESC 
+            ORDER BY x.POST_ID, x.CREATED_AT DESC, x.ID DESC 
         """).param("postIds", postIds)
                 .query(Comment.class)
                 .list();

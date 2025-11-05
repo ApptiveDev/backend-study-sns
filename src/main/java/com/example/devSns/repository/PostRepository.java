@@ -24,16 +24,16 @@ public class PostRepository {
     public PostRepository(JdbcClient jdbcClient, DataSource dataSource) {
         this.jdbcClient = jdbcClient;
         this.insert = new SimpleJdbcInsert(dataSource)
-                .withTableName("posts")
-                .usingColumns("content", "user_name")
-                .usingGeneratedKeyColumns("id");
+                .withTableName("POSTS")
+                .usingColumns("CONTENT", "USER_NAME")
+                .usingGeneratedKeyColumns("ID");
 
     }
 
     public Post save(Post post) {
         Map<String, Object> params = Map.of(
-                "content", post.getContent(),
-                "user_name", post.getUserName()
+                "CONTENT", post.getContent(),
+                "USER_NAME", post.getUserName()
         );
         Number key = insert.executeAndReturnKey(params);
         post.setId(key.longValue());
@@ -41,14 +41,14 @@ public class PostRepository {
     }
 
     public Optional<Post> findById(Long id) {
-        return jdbcClient.sql("SELECT * FROM posts WHERE id = :id")
+        return jdbcClient.sql("SELECT * FROM POSTS WHERE ID = :id")
                 .param("id", id)
                 .query(Post.class)
                 .optional();
     }
 
     public Optional<Post> findByUsername(String userName) {
-        return jdbcClient.sql("SELECT * FROM posts WHERE user_name = :userName")
+        return jdbcClient.sql("SELECT * FROM POSTS WHERE USER_NAME = :userName")
                 .param("userName", userName)
                 .query(Post.class)
                 .optional();
@@ -59,9 +59,9 @@ public class PostRepository {
         Integer limit = 15;
         return jdbcClient.sql("""
                     SELECT *
-                    FROM posts
+                    FROM POSTS
                     WHERE CREATED_AT < :createdAt
-                    ORDER BY created_at DESC, id DESC
+                    ORDER BY CREATED_AT DESC, ID DESC
                     LIMIT :limit
                 """)
                 .param("createdAt", createdAt)
@@ -71,25 +71,25 @@ public class PostRepository {
     }
 
     public List<Post> findAll() {
-        return jdbcClient.sql("SELECT * FROM posts")
+        return jdbcClient.sql("SELECT * FROM POSTS")
                 .query(Post.class)
                 .list();
     }
 
     public int updateById(Post post, Long id) {
-        return jdbcClient.sql("UPDATE posts SET LIKE_COUNT = ?, CONTENT = ?, USER_NAME = ? WHERE id = ?")
+        return jdbcClient.sql("UPDATE POSTS SET LIKE_COUNT = ?, CONTENT = ?, USER_NAME = ? WHERE ID = ?")
                 .params(post.getLikeCount(), post.getContent(), post.getUserName(), id)
                 .update();
     }
 
     public int incrementLikeById(Long id) {
-        return jdbcClient.sql("UPDATE posts SET LIKE_COUNT = LIKE_COUNT + 1 WHERE id = ?")
+        return jdbcClient.sql("UPDATE POSTS SET LIKE_COUNT = LIKE_COUNT + 1 WHERE ID = ?")
             .params(id)
             .update();
     }
 
     public int updateContentByIdAndUpdatedAt(String content, Long id, LocalDateTime updatedAt) {
-        return jdbcClient.sql("UPDATE posts SET CONTENT = ? WHERE id = ? AND UPDATED_AT = ?")
+        return jdbcClient.sql("UPDATE POSTS SET CONTENT = ? WHERE ID = ? AND UPDATED_AT = ?")
             .params(content, id, updatedAt)
             .update();
     }
