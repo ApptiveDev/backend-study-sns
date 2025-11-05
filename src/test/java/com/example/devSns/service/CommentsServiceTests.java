@@ -89,11 +89,11 @@ class CommentServiceTest {
             CommentResponseDto res = commentService.findOne(2L);
 
             assertEquals(2L, res.id());
-            assertEquals(10L, res.post_id());
+            assertEquals(10L, res.postId());
             assertEquals("content", res.content());
-            assertEquals("bob", res.user_name());
-            assertEquals(3L, res.like_count());
-            assertEquals(now, res.created_at());
+            assertEquals("bob", res.userName());
+            assertEquals(3L, res.likeCount());
+            assertEquals(now, res.createdAt());
         }
 
         @Test
@@ -139,11 +139,11 @@ class CommentServiceTest {
 
             // then
             assertEquals(11L, res.id());
-            assertEquals(77L, res.post_id());
+            assertEquals(77L, res.postId());
             assertEquals("new-content", res.content());
-            assertEquals("cathy", res.user_name());
-            assertEquals(4L, res.like_count());
-            assertEquals(created, res.created_at()); // 서비스 구현상 created_at은 유지
+            assertEquals("cathy", res.userName());
+            assertEquals(4L, res.likeCount());
+            assertEquals(created, res.createdAt()); // 서비스 구현상 created_at은 유지
             verify(commentRepository).updateById(any(Comment.class), eq(11L));
         }
 
@@ -166,7 +166,7 @@ class CommentServiceTest {
         CommentResponseDto res = commentService.like(3L);
 
         assertEquals(3L, res.id());
-        assertEquals(3L, res.like_count()); // 2 -> 3
+        assertEquals(3L, res.likeCount()); // 2 -> 3
         verify(commentRepository).updateById(any(Comment.class), eq(3L));
     }
 

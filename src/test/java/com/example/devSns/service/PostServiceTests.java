@@ -160,7 +160,7 @@ class PostServiceTests {
         PostResponseDto res = postService.like(id);
 
         assertThat(res.id()).isEqualTo(id);
-        assertThat(res.like_count()).isEqualTo(11L);
+        assertThat(res.likeCount()).isEqualTo(11L);
         verify(postRepository).updateById(postCaptor.capture(), eq(id));
         assertThat(postCaptor.getValue().getLikeCount()).isEqualTo(11L);
     }

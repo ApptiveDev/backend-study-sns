@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
@@ -28,6 +28,7 @@ public class CommentService {
         this.postRepository = postRepository;
     }
 
+    @Transactional
     public Long join(CommentCreateDto commentCreateDto) {
         postRepository.findById(commentCreateDto.post_id())
                 .orElseThrow(()->new InvalidRequestException("Invalid Request."));
@@ -46,12 +47,14 @@ public class CommentService {
         return CommentResponseDto.from(comment);
     }
 
+    @Transactional
     public void delete(Long id) {
         int affectedRows = commentRepository.deleteById(id);
         if (affectedRows == 0)
             throw new NotFoundException("comment not found");
     }
 
+    @Transactional
     public CommentResponseDto updateContent(Long id, GenericDataDto<String> contentsDto) {
         if (contentsDto.data() == null) 
             throw new InvalidRequestException("Invalid Request.");
@@ -64,6 +67,7 @@ public class CommentService {
         return findOne(id);
     }
 
+    @Transactional
     public CommentResponseDto like(Long id) {
         int affectedRows = commentRepository.incrementLikeById(id);
         if (affectedRows == 0)

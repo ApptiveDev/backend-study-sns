@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class PostService {
 
     private final PostRepository postRepository;
@@ -32,6 +32,7 @@ public class PostService {
         this.commentRepository = commentRepository;
     }
 
+    @Transactional
     public Long join(PostCreateDto postCreateDto) {
         Post post = new Post();
         post.setContent(postCreateDto.content());
@@ -47,12 +48,14 @@ public class PostService {
         return PostResponseDto.from(post, comments);
     }
 
+    @Transactional
     public void delete(Long id) {
         int affectedRows = postRepository.deleteById(id);
         if (affectedRows == 0) 
             throw new NotFoundException("post not found");
     }
 
+    @Transactional
     public PostResponseDto updateContent(Long id, GenericDataDto<String> contentsDto) {
         if (contentsDto.data() == null) 
             throw new InvalidRequestException("Invalid request.");
@@ -66,6 +69,7 @@ public class PostService {
         return findOne(id);
     }
 
+    @Transactional
     public PostResponseDto like(Long id) {
         int affectedRows = postRepository.incrementLikeById(id);
         if (affectedRows == 0) 
@@ -73,6 +77,7 @@ public class PostService {
 
         return findOne(id);
     }
+
 
     public PaginatedDto<List<PostResponseDto>> findAsPaginated(GenericDataDto<LocalDateTime> localDateTimeDto) {
         LocalDateTime criteria = localDateTimeDto.data();
