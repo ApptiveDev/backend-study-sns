@@ -3,6 +3,8 @@ package com.example.devSns.Comment;
 import com.example.devSns.Comment.Dto.CreateCommentDto;
 import com.example.devSns.Comment.Dto.UpdateCommentDto;
 import com.example.devSns.Post.EntityNotFoundException;
+import com.example.devSns.Post.Post;
+import com.example.devSns.Post.PostRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,19 +15,23 @@ import java.util.List;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
 
     @Autowired
-    public CommentService(CommentRepository commentRepository) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository) {
         this.commentRepository = commentRepository;
+        this.postRepository = postRepository;
     }
 
     @Transactional
     // 댓글 달기. 특정 게시글 밑에 작성 , 게시글 상세 조회 후 작성이 가능하도록
-    public Long createComment(CreateCommentDto dto){
-        Comment comment = dto.toEntity();
+    public Long createComment(Long postId, CreateCommentDto dto){
+        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found"));
+        Comment comment = dto.toEntity(post);
         Comment saved = commentRepository.save(comment);
         return saved.getId();
     }
+
     @Transactional
     // 댓글 목록 조회 - 게시글 밑에 나타나게끔. 근데 얘는 특정 포스트에 해당된 모든 댓글이 조회 되어야 할 터
     public List<Comment> getAllComments(Long postId){
@@ -35,8 +41,9 @@ public class CommentService {
     @Transactional
     // 댓글 조회 - 특정 게시글 조회 시 댓글도 조회되게끔
     // 조회용 Dto 도 만들기, 내용, 작성자, 작성 일시가 나오면 될듯
-    public Comment getCommentById(Long id){
-        return commentRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Comment not found"));
+    public Comment getCommentById(Long postId, Long commentId){
+        return commentRepository.findByPostIdAndId(postId, commentId)
+                .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
     }
     @Transactional
     // 댓글 수정

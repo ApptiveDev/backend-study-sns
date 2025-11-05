@@ -49,6 +49,11 @@ public class Comment {
         this.comment = comment;
         this.author = author;
     }
+    public Comment(Post post, String comment, String author) {
+        this.post = post;
+        this.comment = comment;
+        this.author = author;
+    }
 
     public void updateComment(UpdateCommentDto dto) {
         this.comment = dto.content();
