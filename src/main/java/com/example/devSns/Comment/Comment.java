@@ -41,7 +41,7 @@ public class Comment {
     @JsonBackReference
     private Comment parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonManagedReference
     private List<Comment> children;
 

@@ -49,7 +49,7 @@ public class CommentService {
     // 댓글 목록 조회 - 게시글 밑에 나타나게끔. 근데 얘는 특정 포스트에 해당된 모든 댓글이 조회 되어야 할 터
     public List<Comment> getAllComments(Long postId){
         // repo에 인자로 전달된 postId를 가지는 comment 조회, 가져올 때 Dto 변환 시키기 JPQL
-        return commentRepository.findAll();
+        return commentRepository.findByPostIdAndParentIsNull(postId);
     }
     @Transactional
     // 댓글 조회 - 특정 게시글 조회 시 댓글도 조회되게끔
