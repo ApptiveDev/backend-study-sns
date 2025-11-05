@@ -5,7 +5,7 @@ package com.example.devSns.task.dto;
 import com.example.devSns.task.Task;
 import java.time.LocalDate;
 
-public class TaskRequest { // client 가 보낸 json 담는 곳
+public class TaskRequest {
     public String title;
     public String description;
     public LocalDate dueDate;

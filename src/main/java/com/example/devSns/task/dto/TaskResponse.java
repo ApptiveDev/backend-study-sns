@@ -5,7 +5,7 @@ package com.example.devSns.task.dto;
 import com.example.devSns.task.Task;
 import java.time.LocalDate;
 
-public class TaskResponse { //외부에 노출할 필드만 담는 상자
+public class TaskResponse {
     public Long id;
     public String title;
     public String description;
@@ -13,7 +13,7 @@ public class TaskResponse { //외부에 노출할 필드만 담는 상자
     public Integer priority;
     public Task.Status status;
 
-    public TaskResponse(Task t) { //복사
+    public TaskResponse(Task t) {
         this.id = t.getId();
         this.title = t.getTitle();
         this.description = t.getDescription();

@@ -5,4 +5,3 @@ package com.example.devSns.task;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TaskRepository extends JpaRepository<Task, Long> { }
-//crud 메소드 자동 제공

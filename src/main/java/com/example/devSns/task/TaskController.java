@@ -1,7 +1,5 @@
-//HTTP 요청을 받아 서비스 호출과 응답 반환을 담당하는 API
-
-
 package com.example.devSns.task;
+
 import com.example.devSns.task.dto.TaskRequest;
 import com.example.devSns.task.dto.TaskResponse;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +11,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
+
     private final TaskService service;
-    public TaskController(TaskService service) { this.service = service; }
+
+    public TaskController(TaskService service) {
+        this.service = service;
+    }
 
     @PostMapping
     public ResponseEntity<TaskResponse> create(@RequestBody TaskRequest req) {
@@ -24,18 +26,23 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<TaskResponse> list() {
-        return service.findAll().stream().map(TaskResponse::new).toList();
+    public ResponseEntity<List<TaskResponse>> list() {
+        List<TaskResponse> tasks = service.findAll().stream()
+                .map(TaskResponse::new)
+                .toList();
+        return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/{id}")
-    public TaskResponse get(@PathVariable Long id) {
-        return new TaskResponse(service.findById(id));
+    public ResponseEntity<TaskResponse> get(@PathVariable Long id) {
+        Task found = service.findById(id);
+        return ResponseEntity.ok(new TaskResponse(found));
     }
 
     @PutMapping("/{id}")
-    public TaskResponse update(@PathVariable Long id, @RequestBody TaskRequest req) {
-        return new TaskResponse(service.update(id, req));
+    public ResponseEntity<TaskResponse> update(@PathVariable Long id, @RequestBody TaskRequest req) {
+        Task updated = service.update(id, req);
+        return ResponseEntity.ok(new TaskResponse(updated));
     }
 
     @DeleteMapping("/{id}")

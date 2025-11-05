@@ -1,12 +1,13 @@
-//Task을 DB 테이블과 연결하는 엔티티
-
 package com.example.devSns.task;
 
+import com.example.devSns.comment.Comment;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-@Entity                             //jpa 엔터티로 선언
-@Table(name = "tasks")              //이름이 tasks 인 테이블 명시.
+@Entity
+@Table(name = "tasks")
 public class Task {
 
     public enum Status { TODO, IN_PROGRESS, DONE }
@@ -21,16 +22,17 @@ public class Task {
     private String description;
 
     private LocalDate dueDate;
-
     private Integer priority;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.TODO;
 
-    protected Task() {} // JPA 기본생성자
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
-    // getter/setter
+    protected Task() {}
+
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -42,4 +44,5 @@ public class Task {
     public void setPriority(Integer priority) { this.priority = priority; }
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
+    public List<Comment> getComments() { return comments; }
 }
