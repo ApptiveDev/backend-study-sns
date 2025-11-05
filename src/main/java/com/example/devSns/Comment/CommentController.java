@@ -22,7 +22,27 @@ public class CommentController {
         commentService.createComment(post_id, dto);
     }
 
+    @GetMapping("posts/{post_id}/comments")
+    public List<Comment> getComments(@PathVariable("post_id") Long post_id) {
+        return commentService.getAllComments(post_id);
+    }
+    @GetMapping("posts/{post_id}/comments/{comment_id}")
+    public Comment getCommentsByPostId(
+            @PathVariable("post_id") Long post_id,
+            @PathVariable("comment_id") Long comment_id) {
+        return commentService.getCommentById(post_id, comment_id);
+    }
+    @PatchMapping("/comments/{comment_id}")
+    public Comment updateComment(
+            @PathVariable("comment_id") Long comment_id,
+            @RequestBody UpdateCommentDto dto) {
+            return commentService.updateComment(comment_id, dto);
 
+    }
+    @DeleteMapping("comments/{comment_id}")
+    public void deleteComment(@PathVariable("comment_id") Long comment_id) {
+        commentService.deleteCommentById(comment_id);
+    }
 
 
 }
