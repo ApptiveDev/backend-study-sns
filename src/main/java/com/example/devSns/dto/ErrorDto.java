@@ -1,4 +1,8 @@
 package com.example.devSns.dto;
 
-public record ErrorDto(String error_message) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record ErrorDto(
+        @JsonProperty("error_message") String errorMessage
+) {
 }

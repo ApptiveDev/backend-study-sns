@@ -35,7 +35,7 @@ public class PostService {
     public Long join(PostCreateDto postCreateDto) {
         Post post = new Post();
         post.setContent(postCreateDto.content());
-        post.setUserName(postCreateDto.user_name());
+        post.setUserName(postCreateDto.userName());
         postRepository.save(post);
         return post.getId();
     }
@@ -58,7 +58,7 @@ public class PostService {
             throw new InvalidRequestException("Invalid request.");
 
         PostResponseDto postResponseDto = findOne(id);
-        int affectedRows = postRepository.updateContentByIdAndUpdatedAt(contentsDto.data(), id, postResponseDto.updated_at());
+        int affectedRows = postRepository.updateContentByIdAndUpdatedAt(contentsDto.data(), id, postResponseDto.updatedAt());
         
         if (affectedRows == 0) 
             throw new RequestConflictException("request conflict.");

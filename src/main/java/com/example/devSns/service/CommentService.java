@@ -5,7 +5,6 @@ import com.example.devSns.dto.GenericDataDto;
 import com.example.devSns.dto.PaginatedDto;
 import com.example.devSns.dto.comment.CommentCreateDto;
 import com.example.devSns.dto.comment.CommentResponseDto;
-import com.example.devSns.dto.post.PostResponseDto;
 import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
 import com.example.devSns.exception.RequestConflictException;
@@ -16,9 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -38,7 +35,7 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setContent(commentCreateDto.content());
         comment.setPostId(commentCreateDto.post_id());
-        comment.setUserName(commentCreateDto.user_name());
+        comment.setUserName(commentCreateDto.userName());
 
         return commentRepository.save(comment).getId();
     }
@@ -60,7 +57,7 @@ public class CommentService {
             throw new InvalidRequestException("Invalid Request.");
 
         CommentResponseDto commentResponseDto = findOne(id);
-        int affectedRows = commentRepository.updateContentByIdAndUpdatedAt(contentsDto.data(), id, commentResponseDto.updated_at());
+        int affectedRows = commentRepository.updateContentByIdAndUpdatedAt(contentsDto.data(), id, commentResponseDto.updatedAt());
         if (affectedRows == 0)
             throw new RequestConflictException("request conflict.");
 

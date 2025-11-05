@@ -439,7 +439,7 @@
     qs('#drawer-close').onclick = closeDrawer;
     qs('#drawer-backdrop').onclick = closeDrawer;
 
-    // 댓글: 더 보기 (before=마지막 created_at)
+    // 댓글: 더 보기 (before=마지막 createdAt)
     qs('#btn-comments-more').onclick = async () => {
         if (!drawerPost) return;
         try {

@@ -17,10 +17,10 @@ public class Post {
         return Map.of(
                 "id", id,
                 "content", content,
-                "like_count", likeCount,
-                "user_name", userName,
-                "created_at", createdAt,
-                "updated_at", updatedAt
+                "likeCount", likeCount,
+                "userName", userName,
+                "createdAt", createdAt,
+                "updatedAt", updatedAt
         );
     }
 
