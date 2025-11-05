@@ -78,9 +78,8 @@ public class PostController {
 
     @PatchMapping("/{id}/contents")
     public ResponseEntity<PostResponseDto> contents(
-            @PathVariable @Positive Long id, @RequestBody GenericDataDto<String> contentsDto) {
+            @PathVariable @Positive Long id, @RequestBody @Valid GenericDataDto<String> contentsDto) {
 
-        if (contentsDto == null) throw new InvalidRequestException("Invalid request.");
         PostResponseDto post = postService.updateContent(id, contentsDto);
         return ResponseEntity.ok().body(post);
     }

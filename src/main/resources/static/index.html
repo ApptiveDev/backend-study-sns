@@ -171,7 +171,7 @@
     function listComments(postId, before) {
         const query = {};
         if (before) { const iso = toIso(before); if (iso) query.before = iso; }
-        return apiFetch(`/comments/postGroup/${postId}`, { query });
+        return apiFetch(`/posts/${postId}/comments`, { query });
     }
     function createComment(post_id, content, user_name) { return apiFetch('/comments', { method:'POST', body:{ post_id, content, user_name } }); }
     function likeComment(id) { return apiFetch(`/comments/${id}/likes`, { method:'POST' }); }
