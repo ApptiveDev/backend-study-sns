@@ -22,6 +22,16 @@ public class CommentController {
         commentService.createComment(post_id, dto);
     }
 
+    @PostMapping("posts/{post_id}/comments/{comment_id}")
+    public void postReplyComment(
+            @RequestBody CreateCommentDto dto,
+            @PathVariable Long post_id,
+            @PathVariable Long comment_id
+    ) {
+        commentService.createReplyComment(post_id, comment_id, dto);
+    }
+
+
     @GetMapping("posts/{post_id}/comments")
     public List<Comment> getComments(@PathVariable("post_id") Long post_id) {
         return commentService.getAllComments(post_id);

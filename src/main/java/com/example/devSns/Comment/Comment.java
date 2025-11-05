@@ -49,16 +49,22 @@ public class Comment {
         this.comment = comment;
         this.author = author;
     }
-    public Comment(Post post, String comment, String author) {
-        this.post = post;
-        this.comment = comment;
-        this.author = author;
-    }
 
     public void updateComment(UpdateCommentDto dto) {
         this.comment = dto.content();
         this.author = dto.author();
     }
+    public void leaveReply(Comment reply) { // 댓글 남기기
+        this.children.add(reply);
+    }
+    public void leavedParent(Comment parent) { // 부모 댓글 설정
+        this.parent = parent;
+        this.post = parent.getPost();
+    }
+    public void assignToPost(Post post) {
+        this.post = post;
+    }
+
 
     @PrePersist
     protected void onCreate() {

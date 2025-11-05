@@ -7,9 +7,9 @@ public record CreateCommentDto(
         String content,
         String author
 ) {
-
-    public Comment toEntity(Post post) {
-        return new Comment(post,content, author);
+    public Comment toEntity() {
+        return new Comment(content, author);
 
     }
+
 }

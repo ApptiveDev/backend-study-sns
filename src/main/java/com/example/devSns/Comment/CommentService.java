@@ -27,9 +27,22 @@ public class CommentService {
     // 댓글 달기. 특정 게시글 밑에 작성 , 게시글 상세 조회 후 작성이 가능하도록
     public Long createComment(Long postId, CreateCommentDto dto){
         Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found"));
-        Comment comment = dto.toEntity(post);
+        Comment comment = dto.toEntity();
+        comment.assignToPost(post);
         Comment saved = commentRepository.save(comment);
         return saved.getId();
+    }
+    @Transactional
+    public void createReplyComment(Long postId, Long commentId, CreateCommentDto dto){
+        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found"));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new EntityNotFoundException("Comment not found"));
+        Comment reply = dto.toEntity();
+
+        reply.leavedParent(comment);
+        comment.leaveReply(reply);
+
+        commentRepository.save(reply);
+
     }
 
     @Transactional
