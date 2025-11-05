@@ -56,16 +56,7 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/postGroup/{postId}")
-    public ResponseEntity<PaginatedDto<List<CommentResponseDto>>> getAsPaginated(
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime before,
-            @PathVariable @Positive Long postId
-    ) {
-        PaginatedDto<List<CommentResponseDto>> posts = commentService.findAsPaginated(new GenericDataDto<>(before), postId);
-        return ResponseEntity.ok().body(posts);
-    }
+
 
     @PostMapping("/{id}/likes")
     public ResponseEntity<CommentResponseDto> like(@PathVariable @Positive Long id) {

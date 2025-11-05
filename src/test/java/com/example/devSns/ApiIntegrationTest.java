@@ -247,7 +247,7 @@ class ApiIntegrationTest {
         }
 
         @Test
-        @DisplayName("2-5. GET /comments/postGroup/{postId} (페이지네이션)")
+        @DisplayName("2-5. GET /posts/{postId}/comments (페이지네이션)")
         void listCommentsPaginated() throws Exception {
             Long postId = newPostId();
             // 여러 개 생성
@@ -258,7 +258,7 @@ class ApiIntegrationTest {
                         .andExpect(status().isCreated());
             }
 
-            mvc.perform(get("/comments/postGroup/{postId}", postId)
+            mvc.perform(get("/posts/{postId}/comments", postId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJson(new GenericDataDto<LocalDateTime>(null))))
                     .andExpect(status().isOk())
