@@ -2,6 +2,7 @@ package com.example.devSns.task.controller;
 
 import com.example.devSns.task.dto.*;
 import com.example.devSns.task.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class Controller {
 
     // 1. 생성 : Post /api/posts
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostCreateRequestDto requestDto){
+    public ResponseEntity<PostResponseDto> createPost(@RequestBody @Valid PostCreateRequestDto requestDto){
         PostResponseDto createdPost = postService.createPost(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
