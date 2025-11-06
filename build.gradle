@@ -19,7 +19,16 @@ repositories {
 }
 
 dependencies {
+    // 기본 웹 라이브러리
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+    // 데이터베이스 연동(JPA) 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // 테스트용 H2 인메모리 데이터베이스
+    runtimeOnly 'com.h2database:h2'
+    // Lombok 라이브러리 (코드 자동 생성)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    // 기본 테스트 라이브러리
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
