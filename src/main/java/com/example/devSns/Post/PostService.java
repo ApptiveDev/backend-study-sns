@@ -1,5 +1,6 @@
 package com.example.devSns.Post;
 
+import com.example.devSns.Comment.CommentRepository;
 import com.example.devSns.Post.Dto.AddPostRequestDto;
 import com.example.devSns.Post.Dto.GetPostResponseDto;
 import com.example.devSns.Post.Dto.UpdatePostRequestDto;
@@ -7,14 +8,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class PostService {
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+
 
     @Autowired
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository,CommentRepository commentRepository) {
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
     }
     public void createPost(AddPostRequestDto Dto) {
         Post post = new Post(
@@ -29,17 +35,29 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
 
+
         return new GetPostResponseDto(
                 post.getContent(),
                 post.getLikeCount(),
                 post.getUserName(),
-                post.getCreatedAt()
+                post.getCreatedAt(),
+                commentRepository.findByPostIdAndParentIsNull(post.getId())
         );
     }
 
-    public List<Post> findAll() {
-        return postRepository.findAll();
+    public List<GetPostResponseDto> findAll() {
+        return postRepository.findAll()
+                .stream()
+                .map(post -> new GetPostResponseDto(
+                        post.getContent(),
+                        post.getLikeCount(),
+                        post.getUserName(),
+                        post.getCreatedAt(),
+                        commentRepository.findByPostIdAndParentIsNull(post.getId())
+                ))
+                .collect(Collectors.toList());
     }
+
 
     public void delete(Long id) {
         Post post = postRepository.findById(id).orElseThrow(
