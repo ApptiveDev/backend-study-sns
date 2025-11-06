@@ -34,7 +34,7 @@ public class CommentService {
     }
     @Transactional
     public void createReplyComment(Long postId, Long commentId, CreateCommentDto dto){
-        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found"));
+        postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found"));
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new EntityNotFoundException("Comment not found"));
         Comment reply = dto.toEntity();
 
