@@ -8,6 +8,7 @@ import com.example.devSns.exception.RequestConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -52,6 +53,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDto> handleNoResource(NoResourceFoundException e) {
         // 필요하면 logger.debug로만 남기기
         // logger.debug("Static resource not found: {}", e.getResourcePath());
+        return ResponseEntity.status(404).body(new ErrorDto("Not Found"));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorDto> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         return ResponseEntity.status(404).body(new ErrorDto("Not Found"));
     }
 

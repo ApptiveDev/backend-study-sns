@@ -131,7 +131,9 @@
     function toIso(input) {
         if (!input) return null;
         if (/^\d{4}-\d{2}-\d{2}T/.test(input)) return input;
+        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
         const d = new Date(input);
+        d.setTime(d.getTime() - timezoneOffset);
         return isNaN(d.getTime()) ? null : d.toISOString();
     }
 
@@ -214,7 +216,7 @@
     }
 
     function postCardHTML(p) {
-        const commentsCount = (p.comments || []).length;
+        const commentsCount = p.comments;
         return `
       <article class="border border-slate-200 rounded-2xl p-4 hover:bg-slate-50">
         <header class="flex items-center gap-2">
@@ -338,8 +340,8 @@
         try {
             const updated = await likePost(id);
             // feed/ drawer 상태 동기화
-            feed = feed.map(p => p.id === id ? updated : p);
-            if (drawerPost && drawerPost.id === id) drawerPost = updated;
+            feed = feed.map(p => p.id === id ? {...p, like_count : p.like_count + 1} : p);
+            if (drawerPost && drawerPost.id === id) drawerPost.like_count++;
             renderFeed();
             if (!qs('#drawer').classList.contains('hidden')) renderDrawerPost();
         } catch (e) { showToast(`좋아요 실패: ${e.message}`); }
@@ -350,7 +352,7 @@
         try {
             const p = await getPost(id);
             drawerPost = p;
-            comments = p.comments ?? [];
+            comments = p.comments ?? (await listComments(id, new Date())).data;
             commentsNext = null; // 서버의 comments API는 별도로 페이지네이션하므로 초기화
             renderDrawerPost();
             renderComments();

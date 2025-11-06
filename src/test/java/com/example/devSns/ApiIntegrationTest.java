@@ -87,7 +87,7 @@ class ApiIntegrationTest {
                     .andExpect(jsonPath("$.content").value("post content"))
                     .andExpect(jsonPath("$.user_name").value("bob"))
                     .andExpect(jsonPath("$.like_count").value(0))
-                    .andExpect(jsonPath("$.comments").isArray());
+                    .andExpect(jsonPath("$.comments").value(0));
         }
 
         @Test
@@ -103,9 +103,9 @@ class ApiIntegrationTest {
 
             // 좋아요
             mvc.perform(post("/posts/{id}/likes", id))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(id))
-                    .andExpect(jsonPath("$.like_count").value(1));
+                    .andExpect(status().isNoContent());
+//                    .andExpect(jsonPath("$.id").value(id))
+//                    .andExpect(jsonPath("$.like_count").value(1));
         }
 
         @Test
@@ -223,9 +223,9 @@ class ApiIntegrationTest {
             ).get("data")).longValue();
 
             mvc.perform(post("/comments/{id}/likes", id))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(id))
-                    .andExpect(jsonPath("$.like_count").value(1));
+                    .andExpect(status().isNoContent());
+//                    .andExpect(jsonPath("$.id").value(id))
+//                    .andExpect(jsonPath("$.like_count").value(1));
         }
 
         @Test
@@ -258,9 +258,7 @@ class ApiIntegrationTest {
                         .andExpect(status().isCreated());
             }
 
-            mvc.perform(get("/posts/{postId}/comments", postId)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(asJson(new GenericDataDto<LocalDateTime>(null))))
+            mvc.perform(get("/posts/{postId}/comments", postId))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data").isArray())
                     .andExpect(jsonPath("$.nextQueryCriteria").exists());

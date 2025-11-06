@@ -5,7 +5,7 @@ import com.example.devSns.dto.PaginatedDto;
 import com.example.devSns.dto.post.PostCreateDto;
 import com.example.devSns.dto.post.PostResponseDto;
 import com.example.devSns.exception.InvalidRequestException;
-import com.example.devSns.repository.PostRepository;
+//import com.example.devSns.repository.PostRepository;
 import com.example.devSns.service.PostService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -72,8 +72,8 @@ public class PostController {
 
     @PostMapping("/{id}/likes")
     public ResponseEntity<PostResponseDto> like(@PathVariable @Positive Long id) {
-        PostResponseDto post = postService.like(id);
-        return ResponseEntity.ok().body(post);
+        postService.like(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/contents")

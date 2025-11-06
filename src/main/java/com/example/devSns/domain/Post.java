@@ -1,28 +1,47 @@
 package com.example.devSns.domain;
 
 
+import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class Post {
-    private Long id;
-    private String content;
-    private Long likeCount;
-    private String userName;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
-    public Map<String, Object> toMap() {
-        return Map.of(
-                "id", id,
-                "content", content,
-                "likeCount", likeCount,
-                "userName", userName,
-                "createdAt", createdAt,
-                "updatedAt", updatedAt
-        );
+@Entity
+@Table(name = "POSTS")
+public class Post extends BaseTimeEntity{
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "content", nullable = false)
+    private String content;
+
+    @Column(name = "like_count")
+    private Long likeCount = 0L;
+
+    @Column(name = "user_name", nullable = false)
+    private String userName;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post")
+    private List<Comment> comments;
+
+    @Version
+    private Long version;
+
+    public static Post create(String content, String userName) {
+        Post post = new Post();
+        post.content = content;
+        post.userName = userName;
+        return post;
     }
+
 
     public Long getId() {
         return id;
@@ -56,19 +75,5 @@ public class Post {
         this.userName = userName;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

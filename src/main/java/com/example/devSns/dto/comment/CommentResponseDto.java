@@ -21,7 +21,7 @@ public record CommentResponseDto(
     public static CommentResponseDto from(Comment comment) {
         return new CommentResponseDto(
                 comment.getId(),
-                comment.getPostId(),
+                comment.getPost().getId(),
                 comment.getContent(),
                 comment.getUserName(),
                 comment.getLikeCount(),

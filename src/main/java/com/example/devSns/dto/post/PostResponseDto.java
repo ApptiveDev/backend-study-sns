@@ -19,10 +19,10 @@ public record PostResponseDto(
         @NotNull @JsonProperty("like_count") Long likeCount,
         @NotNull @JsonProperty("created_at") LocalDateTime createdAt,
         @Nullable @JsonProperty("updated_at") LocalDateTime updatedAt,
-        @Nullable List<CommentResponseDto> comments
+        @Nullable Long comments
 ) {
 
-    public static PostResponseDto from(Post post, List<Comment> comments) {
+    public static PostResponseDto from(Post post, Long comments) {
         return new PostResponseDto(
                 post.getId(),
                 post.getContent(),
@@ -30,8 +30,7 @@ public record PostResponseDto(
                 post.getLikeCount(),
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
-                comments == null ?
-                        List.of() : comments.stream().map(CommentResponseDto::from).toList()
+                comments == null ? 0 : comments
         );
     }
 }

@@ -60,8 +60,8 @@ public class CommentController {
 
     @PostMapping("/{id}/likes")
     public ResponseEntity<CommentResponseDto> like(@PathVariable @Positive Long id) {
-        CommentResponseDto comment = commentService.like(id);
-        return ResponseEntity.ok().body(comment);
+        commentService.like(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/contents")

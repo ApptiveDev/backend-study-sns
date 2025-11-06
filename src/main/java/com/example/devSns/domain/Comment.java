@@ -1,15 +1,47 @@
 package com.example.devSns.domain;
 
+import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+
 import java.time.LocalDateTime;
 
-public class Comment {
+@Entity
+@Table(name="comments")
+public class Comment extends BaseTimeEntity{
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "content", nullable = false)
     private String content;
-    private Long likeCount;
+
+    @Column(name = "like_count")
+    private Long likeCount = 0L;
+
+    @Column(name = "user_name", nullable = false)
     private String userName;
-    private Long postId;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "POST_ID")
+    private Post post;
+
+    @Version
+    private Long version;
+
+    public static Comment create(String content, Post post, String userName) {
+        Comment comment = new Comment();
+        comment.content = content;
+        comment.post = post;
+        comment.userName = userName;
+        return comment;
+    }
 
     public Long getId() {
         return id;
@@ -17,6 +49,10 @@ public class Comment {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Post getPost() {
+        return post;
     }
 
     public String getContent() {
@@ -43,27 +79,6 @@ public class Comment {
         this.userName = userName;
     }
 
-    public Long getPostId() {
-        return postId;
-    }
 
-    public void setPostId(Long postId) {
-        this.postId = postId;
-    }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }
