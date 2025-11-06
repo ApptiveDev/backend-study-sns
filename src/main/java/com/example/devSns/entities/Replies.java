@@ -1,0 +1,42 @@
+package com.example.devSns.entities;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Builder
+public class Replies {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+
+    @JoinColumn(name = "posts_id")
+    @ManyToOne
+    @NotNull
+    private Posts posts;
+
+    @JoinColumn(name = "users_id")
+    @ManyToOne
+    @NotNull
+    private Users users;
+
+    @NotNull
+    private String reply;
+
+    @NotNull
+    private LocalDateTime createAt;
+
+    @NotNull
+    private LocalDateTime updateAt;
+
+    @OneToMany(mappedBy = "posts", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Replies> replies = new ArrayList<>();
+}

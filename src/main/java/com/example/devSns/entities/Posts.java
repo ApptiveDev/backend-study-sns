@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -21,9 +20,10 @@ public class Posts {
     @Column
     private String content;
 
+    @JoinColumn(name = "users_id")
+    @ManyToOne
     @NotNull
-    @Column
-    private String username;
+    private Users users;
 
     @Column
     private int likeit;
@@ -33,4 +33,16 @@ public class Posts {
 
     @Column
     private LocalDateTime updateat;
+
+    public void setCreateat(LocalDateTime createat) {
+        this.createat = createat;
+    }
+
+    public void setUpdateat(LocalDateTime updateat) {
+        this.updateat = updateat;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }
