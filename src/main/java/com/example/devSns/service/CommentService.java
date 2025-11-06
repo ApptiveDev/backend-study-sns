@@ -31,7 +31,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<Comment> getCommentsByPostId(Long postId) {
-        return commentRepository.findByPostId(postId);
+        return commentRepository.findByPost_Id(postId);
     }
 
     public Comment updateComment(Long id, Comment updatedComment) {
