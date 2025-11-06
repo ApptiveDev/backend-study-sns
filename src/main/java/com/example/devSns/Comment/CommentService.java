@@ -25,12 +25,11 @@ public class CommentService {
 
     @Transactional
     // 댓글 달기. 특정 게시글 밑에 작성 , 게시글 상세 조회 후 작성이 가능하도록
-    public Long createComment(Long postId, CreateCommentDto dto){
+    public void createComment(Long postId, CreateCommentDto dto){
         Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found"));
         Comment comment = dto.toEntity();
         comment.assignToPost(post);
-        Comment saved = commentRepository.save(comment);
-        return saved.getId();
+        commentRepository.save(comment);
     }
     @Transactional
     public void createReplyComment(Long postId, Long commentId, CreateCommentDto dto){
