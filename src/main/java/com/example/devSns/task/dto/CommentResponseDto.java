@@ -1,8 +1,6 @@
 package com.example.devSns.task.dto;
 
 import com.example.devSns.task.entity.Comment;
-import com.example.devSns.task.entity.Post;
-
 import java.time.LocalDateTime;
 
 public record CommentResponseDto (
