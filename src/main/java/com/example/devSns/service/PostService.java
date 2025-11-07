@@ -20,8 +20,8 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public Optional<Post> findById(Long id){
-        return postRepository.findById(id);
+    public Post findById(Long id){
+        return postRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("Post not found"));
     }
 
     public Post save(Post post){
@@ -29,13 +29,8 @@ public class PostService {
     }
     public Post updatePost(Long id, Post updatedPost) {
         Post existingPost = postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
-
-        updatedPost.setCreatedAt(existingPost.getCreatedAt());
-        updatedPost.setUpdatedAt(LocalDateTime.now());
-
-        updatedPost.setId(id);
-
-        return postRepository.save(updatedPost);
+        existingPost.update(updatedPost.getContent());
+        return postRepository.save(existingPost);
     }
 
     public void delete(Long id){

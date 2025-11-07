@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,13 +19,23 @@ public class Comment{
     private String username;
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="post_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name="post_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_diary_user_id_ref_user_id")
+    )
     @JsonBackReference
     private Post post;
 
     @PrePersist
     public void onCreate(){
         createdAt = LocalDateTime.now();
+    }
+    public void update(String content){
+        this.content = content;
+    }
+    public void assignTo(Post post){
+        this.post = post;
     }
 }

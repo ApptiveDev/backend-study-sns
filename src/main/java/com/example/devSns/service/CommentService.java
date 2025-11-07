@@ -5,6 +5,8 @@ import com.example.devSns.entity.Post;
 import com.example.devSns.repository.CommentRepository;
 import com.example.devSns.repository.PostRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -17,13 +19,21 @@ public class CommentService {
         this.postRepository = postRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Comment> getCommentByPost(Long postId){
         return commentRepository.findByPost_Id(postId);
     }
 
     public Comment addComment(Long postId, Comment comment){
-        Post post = postRepository.findById(postId).orElseThrow(()-> new IllegalArgumentException("게시글 없음"));
-        comment.setPost(post);
+        Post post = postRepository.findById(postId).orElseThrow(()-> new IllegalArgumentException("post not found"));
+
+        post.addComment(comment);
+        postRepository.save(post);
+        return commentRepository.save(comment);
+    }
+    public Comment updateComment(Long commentId, String newContent){
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("comment not found"));
+        comment.update(newContent);
         return commentRepository.save(comment);
     }
 

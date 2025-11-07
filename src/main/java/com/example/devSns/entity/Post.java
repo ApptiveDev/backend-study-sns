@@ -10,7 +10,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -28,6 +27,7 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL,orphanRemoval = true)
     @JsonManagedReference
     private List<Comment> comments = new ArrayList<>();
+
     @PrePersist
     public void onCreate(){
         createdAt = LocalDateTime.now();
@@ -37,5 +37,12 @@ public class Post {
     @PreUpdate
     public void onUpdate(){
         updatedAt = LocalDateTime.now();
+    }
+    public void update(String content){
+        this.content = content;
+    }
+    public void addComment(Comment comment){
+        comments.add(comment);
+        comment.assignTo(this);
     }
 }

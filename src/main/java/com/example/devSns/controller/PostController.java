@@ -2,10 +2,12 @@ package com.example.devSns.controller;
 
 import com.example.devSns.entity.Post;
 import com.example.devSns.service.PostService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/post")
@@ -22,8 +24,9 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public Post getPostById(@PathVariable Long id){
-        return postService.findById(id).orElseThrow(()-> new RuntimeException("post not found"));
+    public ResponseEntity<Post> getPostById(@PathVariable Long id){
+        Post post = postService.findById(id);
+        return ResponseEntity.ok(post);
     }
 
     @PostMapping
