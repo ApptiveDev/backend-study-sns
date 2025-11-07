@@ -128,15 +128,6 @@
         } catch { return iso; }
     }
 
-    function toIso(input) {
-        if (!input) return null;
-        if (/^\d{4}-\d{2}-\d{2}T/.test(input)) return input;
-        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-        const d = new Date(input);
-        d.setTime(d.getTime() - timezoneOffset);
-        return isNaN(d.getTime()) ? null : d.toISOString();
-    }
-
     function apiFetch(path, { method='GET', query, body, headers } = {}) {
         const u = new URL((API_BASE + path), window.location.origin);
         if (query && typeof query === 'object') {
@@ -160,20 +151,16 @@
     }
 
     // ---------- API wrappers ----------
-    function listPosts(before) {
-        const query = {};
-        if (before) { const iso = toIso(before); if (iso) query.before = iso; }
-        return apiFetch('/posts', { query });
+    function listPosts(beforeId) {
+        return apiFetch('/posts', { query: { before: beforeId } });
     }
     function getPost(id) { return apiFetch(`/posts/${id}`); }
     function likePost(id) { return apiFetch(`/posts/${id}/likes`, { method: 'POST' }); }
     function updatePostContent(id, content) { return apiFetch(`/posts/${id}/contents`, { method:'PATCH', body:{ data: content } }); }
     function createPost(content, user_name) { return apiFetch('/posts', { method:'POST', body:{ content, user_name } }); }
 
-    function listComments(postId, before) {
-        const query = {};
-        if (before) { const iso = toIso(before); if (iso) query.before = iso; }
-        return apiFetch(`/posts/${postId}/comments`, { query });
+    function listComments(postId, beforeId) {
+        return apiFetch(`/posts/${postId}/comments`, { query: { before: beforeId } });
     }
     function createComment(post_id, content, user_name) { return apiFetch('/comments', { method:'POST', body:{ post_id, content, user_name } }); }
     function likeComment(id) { return apiFetch(`/comments/${id}/likes`, { method:'POST' }); }
@@ -182,12 +169,13 @@
 
     // ---------- State ----------
     let feed = [];                 // 누적 posts
-    let feedNext = null;           // nextQueryCriteria(ISO or LocalDateTime)
+    let feedNext = null;           // nextQueryCriteria(Long ID)
     let loadingFeed = false;
 
     let drawerPost = null;         // 현재 열려있는 포스트 dto
     let comments = [];             // 현재 포스트의 댓글 누적
-    let commentsNext = null;
+    let commentsNext = null;       // nextQueryCriteria(Long ID) for comments
+    let loadingComments = false;
 
     // ---------- Render ----------
     function renderFeed() {
@@ -216,7 +204,8 @@
     }
 
     function postCardHTML(p) {
-        const commentsCount = p.comments;
+        // 백엔드에서 내려주는 'comments'는 댓글 개수(Long)
+        const commentsCount = p.comments || 0;
         return `
       <article class="border border-slate-200 rounded-2xl p-4 hover:bg-slate-50">
         <header class="flex items-center gap-2">
@@ -242,6 +231,7 @@
     function renderDrawerPost() {
         const wrap = qs('#drawer-post');
         const p = drawerPost;
+        if (!p) { wrap.innerHTML = ''; return; }
         wrap.innerHTML = `
         <div class="flex items-start gap-3">
           <div class="h-10 w-10 rounded-full bg-slate-200"></div>
@@ -338,10 +328,11 @@
     async function onLikePost(e) {
         const id = Number(e.currentTarget.getAttribute('data-like-post'));
         try {
-            const updated = await likePost(id);
+            await likePost(id); // 204 No Content, no body
+            const updated = await getPost(id); // 최신 데이터 다시 fetch
             // feed/ drawer 상태 동기화
-            feed = feed.map(p => p.id === id ? {...p, like_count : p.like_count + 1} : p);
-            if (drawerPost && drawerPost.id === id) drawerPost.like_count++;
+            feed = feed.map(p => p.id === id ? updated : p);
+            if (drawerPost && drawerPost.id === id) drawerPost = updated;
             renderFeed();
             if (!qs('#drawer').classList.contains('hidden')) renderDrawerPost();
         } catch (e) { showToast(`좋아요 실패: ${e.message}`); }
@@ -352,16 +343,32 @@
         try {
             const p = await getPost(id);
             drawerPost = p;
-            comments = p.comments ?? (await listComments(id, new Date())).data;
-            commentsNext = null; // 서버의 comments API는 별도로 페이지네이션하므로 초기화
             renderDrawerPost();
-            renderComments();
             openDrawer();
 
-            // 댓글을 더 가져오고 싶을 때(최신 이후로) 버튼 로직: 우선 순차 페이지네이션 (before 기준)
-            // 첫 페이지의 next는 마지막 댓글의 created_at으로 세팅
-            if (comments.length) commentsNext = comments[comments.length - 1].created_at;
+            // 댓글 목록을 별도로 로드
+            await loadComments(true);
         } catch (e) { showToast(`포스트 열기 실패: ${e.message}`); }
+    }
+
+    async function loadComments(initial=false) {
+        if (loadingComments || !drawerPost) return;
+        loadingComments = true;
+        try {
+            const before = initial ? null : commentsNext;
+            const res = await listComments(drawerPost.id, before);
+            const items = res?.data ?? [];
+
+            if (initial) comments = items;
+            else comments = comments.concat(items);
+
+            commentsNext = res?.nextQueryCriteria ?? null;
+            renderComments();
+        } catch (e) {
+            showToast(`댓글 로드 실패: ${e.message}`);
+        } finally {
+            loadingComments = false;
+        }
     }
 
     async function onEditPost(e) {
@@ -382,9 +389,14 @@
     async function onLikeComment(e) {
         const id = Number(e.currentTarget.getAttribute('data-like-comment'));
         try {
-            const updated = await likeComment(id);
-            comments = comments.map(c => c.id === id ? updated : c);
-            renderComments();
+            await likeComment(id); // 204 No Content
+            // 댓글 목록은 Drawer가 열려있을때만 갱신하면 되므로,
+            // 간단하게 해당 댓글의 like_count만 1 증가시켜서 렌더링.
+            const targetComment = comments.find(c => c.id === id);
+            if(targetComment) {
+                targetComment.like_count += 1;
+                renderComments();
+            }
         } catch (e) { showToast(`댓글 좋아요 실패: ${e.message}`); }
     }
 
@@ -395,6 +407,13 @@
             await deleteComment(id);
             comments = comments.filter(c => c.id !== id);
             renderComments();
+            // 댓글 수 갱신을 위해 포스트 재조회
+            if(drawerPost) {
+                const updatedPost = await getPost(drawerPost.id);
+                drawerPost = updatedPost;
+                feed = feed.map(p => p.id === drawerPost.id ? updatedPost : p);
+                renderFeed();
+            }
             showToast('삭제 완료');
         } catch (e) { showToast(`삭제 실패: ${e.message}`); }
     }
@@ -414,7 +433,12 @@
 
     // Drawer control
     function openDrawer() { qs('#drawer').classList.remove('hidden'); }
-    function closeDrawer() { qs('#drawer').classList.add('hidden'); }
+    function closeDrawer() {
+        qs('#drawer').classList.add('hidden');
+        drawerPost = null;
+        comments = [];
+        commentsNext = null;
+    }
 
     // ---------- Listeners ----------
     qs('#refresh-feed').onclick = () => loadFeed(true);
@@ -441,17 +465,8 @@
     qs('#drawer-close').onclick = closeDrawer;
     qs('#drawer-backdrop').onclick = closeDrawer;
 
-    // 댓글: 더 보기 (before=마지막 createdAt)
-    qs('#btn-comments-more').onclick = async () => {
-        if (!drawerPost) return;
-        try {
-            const res = await listComments(drawerPost.id, commentsNext);
-            const items = res?.data ?? [];
-            comments = comments.concat(items);
-            commentsNext = res?.nextQueryCriteria ?? null;
-            renderComments();
-        } catch (e) { showToast(`댓글 로드 실패: ${e.message}`); }
-    };
+    // 댓글: 더 보기
+    qs('#btn-comments-more').onclick = () => loadComments(false);
 
     // 댓글: 작성
     qs('#btn-create-comment').onclick = async () => {
@@ -464,13 +479,17 @@
             await createComment(drawerPost.id, content, user);
             qs('#comment-create-msg').textContent = '등록 완료';
             qs('#new-comment-content').value = '';
-            // 최신 상태를 위해 단건 포스트 재조회
-            const p = await getPost(drawerPost.id);
-            drawerPost = p;
-            comments = p.comments ?? [];
-            commentsNext = comments.length ? comments[comments.length-1].created_at : null;
+
+            // 댓글 목록 새로고침
+            await loadComments(true);
+
+            // 댓글 수 갱신을 위해 포스트 재조회
+            const updatedPost = await getPost(drawerPost.id);
+            drawerPost = updatedPost;
+            feed = feed.map(p => p.id === drawerPost.id ? updatedPost : p);
+            renderFeed();
             renderDrawerPost();
-            renderComments();
+
         } catch (e) {
             qs('#comment-create-msg').textContent = `실패: ${e.message}`;
         }
