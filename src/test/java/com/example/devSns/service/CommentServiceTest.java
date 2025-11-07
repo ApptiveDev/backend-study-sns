@@ -31,7 +31,7 @@ class CommentServiceTest {
 
     @DisplayName("대댓글을 성공적으로 생성한다.")
     @Test
-    void 한글() {
+    void createReplyComment() {
         // 1. Given (준비)
         CommentRequestDto requestDto = new CommentRequestDto();
         requestDto.setContent("대댓글입니다.");
