@@ -13,13 +13,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record PostResponseDto(
-        @NotNull Long id,
-        @NotNull @NotEmpty String content,
-        @NotNull @NotBlank @JsonProperty("user_name") String userName,
-        @NotNull @JsonProperty("like_count") Long likeCount,
-        @NotNull @JsonProperty("created_at") LocalDateTime createdAt,
-        @Nullable @JsonProperty("updated_at") LocalDateTime updatedAt,
-        @Nullable Long comments
+        Long id,
+        String content,
+        @JsonProperty("user_name") String userName,
+        @JsonProperty("like_count") Long likeCount,
+        @JsonProperty("created_at") LocalDateTime createdAt,
+        @JsonProperty("updated_at") LocalDateTime updatedAt,
+        Long comments
 ) {
 
     public static PostResponseDto from(Post post, Long comments) {

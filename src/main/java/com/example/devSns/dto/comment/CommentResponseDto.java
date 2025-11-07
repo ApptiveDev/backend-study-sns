@@ -9,13 +9,13 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record CommentResponseDto(
-    @NotNull Long id,
-    @NotNull @JsonProperty("post_id") Long postId,
-    @NotNull @NotBlank String content,
-    @NotNull @NotBlank @JsonProperty("user_name") String userName,
-    @NotNull @JsonProperty("like_count") Long likeCount,
-    @NotNull @JsonProperty("created_at") LocalDateTime createdAt,
-    @Nullable @JsonProperty("updated_at") LocalDateTime updatedAt
+    Long id,
+    @JsonProperty("post_id") Long postId,
+    String content,
+    @JsonProperty("user_name") String userName,
+    @JsonProperty("like_count") Long likeCount,
+    @JsonProperty("created_at") LocalDateTime createdAt,
+    @JsonProperty("updated_at") LocalDateTime updatedAt
 ) {
 
     public static CommentResponseDto from(Comment comment) {
