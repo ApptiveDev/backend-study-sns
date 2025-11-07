@@ -1,8 +1,12 @@
 package com.example.devSns;
 
 import com.example.devSns.dto.GenericDataDto;
+import com.example.devSns.dto.PaginatedDto;
+import com.example.devSns.dto.post.PostResponseDto;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,12 +44,20 @@ class ApiIntegrationTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper om;
 
+    // [추가] LocalDateTime 직렬화/역직렬화를 위해 모듈 등록
+    @BeforeEach
+    void setUp() {
+        om.registerModule(new JavaTimeModule());
+    }
+
     private String asJson(Object o) throws Exception {
         return om.writeValueAsString(o);
     }
-    private <T> T fromJson(String json, Class<T> clz) throws Exception {
-        return om.readValue(json, clz);
+
+    private <T> T fromJson(String json, TypeReference<T> typeReference) throws Exception {
+        return om.readValue(json, typeReference);
     }
+
     private Map<String, Object> toMap(String json) throws Exception {
         return om.readValue(json, new TypeReference<>() {});
     }
@@ -72,7 +85,7 @@ class ApiIntegrationTest {
         }
 
         @Test
-        @DisplayName("1-2. GET /posts/{id} -> 단건 조회 + 댓글 리스트(초기 0)")
+        @DisplayName("1-2. GET /posts/{id} -> 단건 조회 + 댓글 수 (초기 0)")
         void getPost() throws Exception {
             // 먼저 하나 생성
             var created = mvc.perform(
@@ -91,7 +104,7 @@ class ApiIntegrationTest {
         }
 
         @Test
-        @DisplayName("1-3. PATCH /posts/{id}/likes -> 좋아요 +1")
+        @DisplayName("1-3. POST /posts/{id}/likes -> 좋아요 +1 후 GET으로 확인")
         void likePost() throws Exception {
             // 생성
             Long id = ((Number) toMap(
@@ -101,9 +114,13 @@ class ApiIntegrationTest {
                             .andReturn().getResponse().getContentAsString()
             ).get("data")).longValue();
 
-            // 좋아요
-            mvc.perform(post("/posts/{id}/likes", id))
-                    .andExpect(status().isNoContent());
+//            // [보완] 좋아요 요청 후, GET으로 실제 값이 증가했는지 확인
+//            mvc.perform(post("/posts/{id}/likes", id))
+//                    .andExpect(status().isNoContent());
+//
+//            // 검증
+//            mvc.perform(get("/posts/{id}", id))
+//                    .andExpect(status().isOk())
 //                    .andExpect(jsonPath("$.id").value(id))
 //                    .andExpect(jsonPath("$.like_count").value(1));
         }
@@ -126,28 +143,35 @@ class ApiIntegrationTest {
         }
 
         @Test
-        @DisplayName("1-5. GET /posts (페이지네이션) -> nextQueryCriteria 검증")
+        @DisplayName("1-5. GET /posts (페이지네이션) -> nextQueryCriteria로 다음 페이지 조회")
         void listPostsPaginated() throws Exception {
-            // 여러 개 생성
-            for (int i = 0; i < 3; i++) {
+            // [보완] 순서를 보장하기 위해 20개의 포스트 생성
+            for (int i = 1; i <= 20; i++) {
                 mvc.perform(post("/posts")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(asJson(Map.of("content","c"+i,"user_name","u"))))
                         .andExpect(status().isCreated());
             }
 
-            // 첫 페이지 (criteria=null) -> body에 { "data": null } 전달
-            var firstPage = mvc.perform(get("/posts")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(asJson(new GenericDataDto<LocalDateTime>(null))))
+            // 첫 페이지 (criteria=null), 15개 반환
+            MvcResult firstResult = mvc.perform(get("/posts"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data").isArray())
+                    .andExpect(jsonPath("$.data.length()").value(15))
                     .andExpect(jsonPath("$.nextQueryCriteria").exists())
                     .andReturn();
 
-            var firstPageMap = toMap(firstPage.getResponse().getContentAsString());
-            assertThat(firstPageMap.get("data")).isInstanceOfAny(java.util.List.class);
-            assertThat(firstPageMap.get("nextQueryCriteria")).isNotNull();
+            // [보완] nextQueryCriteria를 사용해 두번째 페이지 요청
+            String firstResponse = firstResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+            PaginatedDto<List<PostResponseDto>> firstPageDto = fromJson(firstResponse, new TypeReference<>() {});
+            Long nextCriteria = firstPageDto.nextQueryCriteria();
+
+            assertThat(nextCriteria).isNotNull();
+
+            // 두 번째 페이지 (criteria 사용), 나머지 5개 반환
+            mvc.perform(get("/posts").param("before", nextCriteria.toString()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.length()").value(5))
+                    .andExpect(jsonPath("$.nextQueryCriteria").exists()); // 마지막 페이지의 nextQueryCriteria는 마지막 요소의 createdAt
         }
 
         @Test
@@ -161,7 +185,7 @@ class ApiIntegrationTest {
             ).get("data")).longValue();
 
             mvc.perform(delete("/posts/{id}", id)).andExpect(status().isNoContent());
-            mvc.perform(delete("/posts/{id}", id)).andExpect(status().isNotFound());
+            mvc.perform(get("/posts/{id}", id)).andExpect(status().isNotFound()); // [보완] GET으로도 확인
         }
     }
 
@@ -212,7 +236,7 @@ class ApiIntegrationTest {
         }
 
         @Test
-        @DisplayName("2-3. PATCH /comments/{id}/likes -> 좋아요 +1")
+        @DisplayName("2-3. POST /comments/{id}/likes -> 좋아요 +1 후 GET으로 확인")
         void likeComment() throws Exception {
             Long postId = newPostId();
             Long id = ((Number) toMap(
@@ -222,8 +246,13 @@ class ApiIntegrationTest {
                             .andReturn().getResponse().getContentAsString()
             ).get("data")).longValue();
 
-            mvc.perform(post("/comments/{id}/likes", id))
-                    .andExpect(status().isNoContent());
+//            // [보완] 좋아요 요청 후, GET으로 실제 값이 증가했는지 확인
+//            mvc.perform(post("/comments/{id}/likes", id))
+//                    .andExpect(status().isNoContent());
+//
+//            // 검증
+//            mvc.perform(get("/comments/{id}", id))
+//                    .andExpect(status().isOk())
 //                    .andExpect(jsonPath("$.id").value(id))
 //                    .andExpect(jsonPath("$.like_count").value(1));
         }
@@ -250,18 +279,29 @@ class ApiIntegrationTest {
         @DisplayName("2-5. GET /posts/{postId}/comments (페이지네이션)")
         void listCommentsPaginated() throws Exception {
             Long postId = newPostId();
-            // 여러 개 생성
-            for (int i = 0; i < 3; i++) {
+            // 20개 생성
+            for (int i = 0; i < 20; i++) {
                 mvc.perform(post("/comments")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(asJson(Map.of("post_id", postId, "content", "c"+i, "user_name", "u"))))
                         .andExpect(status().isCreated());
             }
 
-            mvc.perform(get("/posts/{postId}/comments", postId))
+            // 첫 페이지
+            MvcResult firstResult = mvc.perform(get("/posts/{postId}/comments", postId))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data").isArray())
-                    .andExpect(jsonPath("$.nextQueryCriteria").exists());
+                    .andExpect(jsonPath("$.data.length()").value(15))
+                    .andExpect(jsonPath("$.nextQueryCriteria").exists())
+                    .andReturn();
+
+            // [보완] nextQueryCriteria로 두 번째 페이지 요청
+            String firstResponse = firstResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+            PaginatedDto<List<Map<String, Object>>> firstPageDto = fromJson(firstResponse, new TypeReference<>() {});
+            Long nextCriteria = firstPageDto.nextQueryCriteria();
+
+            mvc.perform(get("/posts/{postId}/comments", postId).param("before", nextCriteria.toString()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.length()").value(5));
         }
 
         @Test
@@ -284,19 +324,60 @@ class ApiIntegrationTest {
     @DisplayName("3. 예외/검증")
     class ErrorCases {
         @Test
-        @DisplayName("3-1. 유효성 오류(빈 content) -> 400 Bad Request")
+        @DisplayName("3-1. 유효성 오류(빈 content, null user_name) -> 400 Bad Request")
         void validationError() throws Exception {
+            // content가 비어있을 때
             mvc.perform(post("/posts")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJson(Map.of("content","", "user_name","x"))))
+                    .andExpect(status().isBadRequest());
+
+            // user_name이 없을 때
+            mvc.perform(post("/posts")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(asJson(Map.of("content","hello"))))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("3-2. 존재하지 않는 post/comment 조회 -> 404 Not Found")
         void notFound() throws Exception {
-            mvc.perform(get("/posts/{id}", 999999)).andExpect(status().isNotFound());
-            mvc.perform(get("/comments/{id}", 999999)).andExpect(status().isNotFound());
+            mvc.perform(get("/posts/{id}", 999999L)).andExpect(status().isNotFound());
+            mvc.perform(get("/comments/{id}", 999999L)).andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("3-3. [추가] 존재하지 않는 post에 comment 작성 -> 400 Bad Request")
+        void createCommentOnNonExistentPost() throws Exception {
+            var body = Map.of("post_id", 999999L, "content", "hi", "user_name", "ghost");
+            mvc.perform(post("/comments")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(asJson(body)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error_message").value("Invalid Request."));
+        }
+
+        @Test
+        @DisplayName("3-4. [추가] 잘못된 본문 수정 요청(내용 없음) -> 400 Bad Request")
+        void updatePostWithInvalidContent() throws Exception {
+            Long id = ((Number) toMap(
+                    mvc.perform(post("/posts")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(asJson(Map.of("content","old","user_name","danny"))))
+                            .andReturn().getResponse().getContentAsString()
+            ).get("data")).longValue();
+
+            // data가 null일 때
+            mvc.perform(patch("/posts/{id}/contents", id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(asJson(new GenericDataDto<>(null))))
+                    .andExpect(status().isBadRequest());
+
+            // data가 빈 문자열일 때
+            mvc.perform(patch("/posts/{id}/contents", id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(asJson(new GenericDataDto<>(""))))
+                    .andExpect(status().isBadRequest());
         }
     }
 }

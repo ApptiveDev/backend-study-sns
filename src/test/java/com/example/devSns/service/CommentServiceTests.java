@@ -8,8 +8,8 @@ import com.example.devSns.dto.comment.CommentCreateDto;
 import com.example.devSns.dto.comment.CommentResponseDto;
 import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
-import com.example.devSns.repository.JpaCommentRepository;
-import com.example.devSns.repository.JpaPostRepository;
+import com.example.devSns.repository.CommentRepository;
+import com.example.devSns.repository.PostRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,10 +30,10 @@ import static org.mockito.Mockito.*;
 class CommentServiceTests {
 
     @Mock
-    private JpaCommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @Mock
-    private JpaPostRepository postRepository;
+    private PostRepository postRepository;
 
     @InjectMocks
     private CommentService commentService;

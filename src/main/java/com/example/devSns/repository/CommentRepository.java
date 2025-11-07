@@ -12,7 +12,7 @@ import java.util.List;
 
 
 @Repository
-public interface JpaCommentRepository extends JpaRepository<Comment, Long> {
+public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 
 

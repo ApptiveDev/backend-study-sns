@@ -7,8 +7,8 @@ import com.example.devSns.dto.post.PostCreateDto;
 import com.example.devSns.dto.post.PostResponseDto;
 import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
-import com.example.devSns.repository.JpaCommentRepository;
-import com.example.devSns.repository.JpaPostRepository;
+import com.example.devSns.repository.CommentRepository;
+import com.example.devSns.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +23,11 @@ import java.util.Map;
 public class PostService {
 
 //    private final PostRepository postRepository;
-    private final JpaPostRepository postRepository;
-    private final JpaCommentRepository commentRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
-    public PostService(JpaPostRepository postRepository, JpaCommentRepository commentRepository) {
+    public PostService(PostRepository postRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
     }
@@ -35,8 +35,7 @@ public class PostService {
     @Transactional
     public Long join(PostCreateDto postCreateDto) {
         Post post = Post.create(postCreateDto.content(), postCreateDto.userName());
-        postRepository.save(post);
-        return post.getId();
+        return postRepository.save(post).getId();
     }
 
     public PostResponseDto findOne(Long id) {
@@ -70,11 +69,11 @@ public class PostService {
     }
 
 
-    public PaginatedDto<List<PostResponseDto>> findAsPaginated(GenericDataDto<LocalDateTime> localDateTimeDto) {
-        LocalDateTime criteria = localDateTimeDto.data();
+    public PaginatedDto<List<PostResponseDto>> findAsPaginated(GenericDataDto<Long> idDto) {
+        Long criteria = idDto.data();
         List<Post> posts = criteria == null ?
-                postRepository.findTop15ByCreatedAtBeforeOrderByCreatedAtDesc(LocalDateTime.now()) :
-                postRepository.findTop15ByCreatedAtBeforeOrderByCreatedAtDesc(criteria);
+                postRepository.findTop15ByCreatedAtBeforeOrderByCreatedAtDesc(LocalDateTime.now().plusSeconds(1)) :
+                postRepository.findTop15ByIdBeforeOrderByIdDesc(criteria);
 
         if (posts.isEmpty()) {
             return new PaginatedDto<>(List.of(), null);
@@ -89,7 +88,7 @@ public class PostService {
                 .map((p)->PostResponseDto.from(p, commentMapping.get(p.getId())))
                 .toList();
 
-        LocalDateTime nextQueryCriteria = posts.getLast().getCreatedAt();
+        Long nextQueryCriteria = posts.getLast().getId();
         return new PaginatedDto<>(postResponseDtoList, nextQueryCriteria);
     }
 

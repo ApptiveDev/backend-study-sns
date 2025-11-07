@@ -8,8 +8,8 @@ import com.example.devSns.dto.comment.CommentCreateDto;
 import com.example.devSns.dto.comment.CommentResponseDto;
 import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
-import com.example.devSns.repository.JpaCommentRepository;
-import com.example.devSns.repository.JpaPostRepository;
+import com.example.devSns.repository.CommentRepository;
+import com.example.devSns.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +20,10 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 public class CommentService {
-    private final JpaCommentRepository commentRepository;
-    private final JpaPostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
     @Autowired
-    public CommentService(JpaCommentRepository commentRepository, JpaPostRepository postRepository) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
     }
@@ -71,11 +71,11 @@ public class CommentService {
         commentRepository.incrementLikeById(id);
     }
 
-    public PaginatedDto<List<CommentResponseDto>> findAsPaginated(GenericDataDto<LocalDateTime> localDateTimeDto, Long postId) {
-        LocalDateTime criteria = localDateTimeDto.data();
+    public PaginatedDto<List<CommentResponseDto>> findAsPaginated(GenericDataDto<Long> idDto, Long postId) {
+        Long criteria = idDto.data();
         List<Comment> comments = criteria == null ?
-                commentRepository.findTop15ByCreatedAtBeforeAndPostIdOrderByCreatedAtDescPostIdDesc(LocalDateTime.now(), postId) :
-                commentRepository.findTop15ByCreatedAtBeforeAndPostIdOrderByCreatedAtDescPostIdDesc(criteria, postId);
+                commentRepository.findTop15ByCreatedAtBeforeAndPostIdOrderByCreatedAtDescPostIdDesc(LocalDateTime.now().plusSeconds(1), postId) :
+                commentRepository.findTop15ByIdBeforeAndPostIdOrderByIdDesc(criteria, postId);
 
         if (comments.isEmpty()) {
             return new PaginatedDto<>(List.of(), null);
@@ -83,7 +83,7 @@ public class CommentService {
 
         List<CommentResponseDto> commentResponseDtoList = comments
                 .stream().map(CommentResponseDto::from).toList();
-        LocalDateTime nextQueryCriteria = comments.getLast().getCreatedAt();
+        Long nextQueryCriteria = comments.getLast().getId();
 
         return new PaginatedDto<>(commentResponseDtoList, nextQueryCriteria);
     }

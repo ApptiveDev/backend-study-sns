@@ -63,8 +63,8 @@ public class PostController {
     @GetMapping
     public ResponseEntity<PaginatedDto<List<PostResponseDto>>> getAsPaginated(
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime before
+//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            Long before
     ) {
         PaginatedDto<List<PostResponseDto>> posts = postService.findAsPaginated(new GenericDataDto<>(before));
         return ResponseEntity.ok().body(posts);

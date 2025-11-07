@@ -27,8 +27,8 @@ public class PostCommentController {
     @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<PaginatedDto<List<CommentResponseDto>>> getAsPaginated(
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime before,
+//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            Long before,
             @PathVariable @Positive Long postId
     ) {
         PaginatedDto<List<CommentResponseDto>> posts = commentService.findAsPaginated(new GenericDataDto<>(before), postId);
