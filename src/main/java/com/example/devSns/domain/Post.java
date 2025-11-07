@@ -13,7 +13,7 @@ import java.util.Map;
 
 
 @Entity
-@Table(name = "POSTS")
+@Table(name = "posts")
 public class Post extends BaseTimeEntity{
 
     @Id

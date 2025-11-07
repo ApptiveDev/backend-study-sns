@@ -1,31 +1,22 @@
 package com.example.devSns.controller;
 
 import com.example.devSns.dto.GenericDataDto;
-import com.example.devSns.dto.PaginatedDto;
 import com.example.devSns.dto.comment.CommentCreateDto;
 import com.example.devSns.dto.comment.CommentResponseDto;
-import com.example.devSns.dto.post.PostResponseDto;
-import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.service.CommentService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/comments")
 public class CommentController {
     private final CommentService commentService;
 
-    @Autowired
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
@@ -33,7 +24,7 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<GenericDataDto<Long>> create(@RequestBody @Valid CommentCreateDto commentCreateDto) {
-        Long id = commentService.join(commentCreateDto);
+        Long id = commentService.create(commentCreateDto);
 
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()

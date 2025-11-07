@@ -9,7 +9,6 @@ import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
 import com.example.devSns.repository.CommentRepository;
 import com.example.devSns.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,18 +21,16 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class PostService {
 
-//    private final PostRepository postRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
-    @Autowired
     public PostService(PostRepository postRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
     }
 
     @Transactional
-    public Long join(PostCreateDto postCreateDto) {
+    public Long create(PostCreateDto postCreateDto) {
         Post post = Post.create(postCreateDto.content(), postCreateDto.userName());
         return postRepository.save(post).getId();
     }

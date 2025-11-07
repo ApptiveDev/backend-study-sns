@@ -40,7 +40,7 @@ class CommentServiceTests {
 
     @Test
     @DisplayName("댓글 생성 성공")
-    void join_success() {
+    void create_success() {
         // given
         Long postId = 1L;
         Post post = createDummyPost(postId);
@@ -52,7 +52,7 @@ class CommentServiceTests {
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
         // when
-        Long commentId = commentService.join(createDto);
+        Long commentId = commentService.create(createDto);
 
         // then
         assertNotNull(commentId);
@@ -63,14 +63,14 @@ class CommentServiceTests {
 
     @Test
     @DisplayName("존재하지 않는 게시글에 댓글 생성 시 InvalidRequestException 발생")
-    void join_throwsInvalidRequestException_whenPostNotFound() {
+    void create_throwsInvalidRequestException_whenPostNotFound() {
         // given
         Long postId = 99L;
         CommentCreateDto createDto = new CommentCreateDto(postId, "Test Comment", "commenter");
         when(postRepository.findById(postId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThrows(InvalidRequestException.class, () -> commentService.join(createDto));
+        assertThrows(InvalidRequestException.class, () -> commentService.create(createDto));
         verify(commentRepository, never()).save(any(Comment.class));
     }
 

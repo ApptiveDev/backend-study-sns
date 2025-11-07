@@ -4,23 +4,15 @@ import com.example.devSns.dto.GenericDataDto;
 import com.example.devSns.dto.PaginatedDto;
 import com.example.devSns.dto.post.PostCreateDto;
 import com.example.devSns.dto.post.PostResponseDto;
-import com.example.devSns.exception.InvalidRequestException;
 //import com.example.devSns.repository.PostRepository;
 import com.example.devSns.service.PostService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -29,14 +21,13 @@ public class PostController {
 
     private final PostService postService;
 
-    @Autowired
     public PostController(PostService postService) {
         this.postService = postService;
     }
 
     @PostMapping
     public ResponseEntity<GenericDataDto<Long>> create(@RequestBody @Valid PostCreateDto postCreateDto) {
-        Long id = postService.join(postCreateDto);
+        Long id = postService.create(postCreateDto);
 
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()

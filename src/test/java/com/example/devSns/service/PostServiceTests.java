@@ -40,7 +40,7 @@ class PostServiceTests {
 
     @Test
     @DisplayName("게시글 생성 성공")
-    void join_success() {
+    void create_success() {
         // given
         PostCreateDto createDto = new PostCreateDto("Test Content", "testUser");
         Post post = Post.create("Test Content", "testUser");
@@ -49,7 +49,7 @@ class PostServiceTests {
         when(postRepository.save(any(Post.class))).thenReturn(post);
 
         // when
-        Long postId = postService.join(createDto);
+        Long postId = postService.create(createDto);
 
         // then
         assertNotNull(postId);
