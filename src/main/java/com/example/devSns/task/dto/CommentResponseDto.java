@@ -11,7 +11,7 @@ public record CommentResponseDto (
         String author,
         LocalDateTime createAt,
         LocalDateTime updateAt,
-        Post post
+        Long postId
 ) {
     public CommentResponseDto(Comment comment) {
         this(
@@ -20,7 +20,7 @@ public record CommentResponseDto (
                 comment.getAuthor(),
                 comment.getCreatedAt(),
                 comment.getModifiedAt(),
-                comment.getPost()
+                comment.getPost().getId()
         );
     }
 }
