@@ -3,6 +3,8 @@ package com.example.devSns.task.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -19,6 +21,9 @@ public class Post {
     private String postContent;
 
     private int likes;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true) // cascade = CascadeType.REMOVE 와 orphanRemoval의 차이??
+    private final List<Comment> comments = new ArrayList<>();
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
