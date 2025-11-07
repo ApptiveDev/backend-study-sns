@@ -1,6 +1,7 @@
 package com.example.devSns.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -30,6 +31,7 @@ public class Comment extends BaseTimeEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
+
     private Post post;
 
     @Version

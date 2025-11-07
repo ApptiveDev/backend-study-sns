@@ -29,7 +29,7 @@ public class Post extends BaseTimeEntity{
     @Column(name = "user_name", nullable = false)
     private String userName;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
     @Version
