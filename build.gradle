@@ -22,7 +22,6 @@ dependencies {
 	// 기본 웹 라이브러리
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	// --- ▼▼▼▼▼ 여기가 빠져있었습니다! ▼▼▼▼▼ ---
 	// 데이터베이스 연동(JPA) 라이브러리
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	// 테스트용 H2 인메모리 데이터베이스

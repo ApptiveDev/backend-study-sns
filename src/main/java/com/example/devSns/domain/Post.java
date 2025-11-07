@@ -1,13 +1,11 @@
 package com.example.devSns.domain; // domain 패키지에 속한다
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-//import lombok.Setter;
-import jakarta.persistence.Column;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity // 이 클래스가 데이터베이스 테이블과 매핑
 @Getter // getId() 등 getter 메서드 자동 생성
@@ -26,6 +24,9 @@ public class Post { // 별도 이름 지정 안하면 클래스 명 소문자형
 
     @Column(columnDefinition = "TEXT") // 멘토 조언
     private String content; // 게시글 내용
+
+    @OneToMany(mappedBy ="post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     // 생성자
     public Post(String title, String content) {

@@ -28,9 +28,7 @@ public class PostController {
     // 2. 모든 게시글 조회 (GET)
     @GetMapping
     public List<PostResponseDto> getAllPosts() {
-        return postService.getAllPosts().stream()
-                .map(PostResponseDto::new)
-                .collect(Collectors.toList());
+        return postService.getAllPosts();
     }
 
     // 3. 특정 게시글 조회 (GET)

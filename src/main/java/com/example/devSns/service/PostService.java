@@ -2,12 +2,15 @@ package com.example.devSns.service;
 
 import com.example.devSns.domain.Post;
 import com.example.devSns.dto.PostRequestDto;
+import com.example.devSns.dto.PostResponseDto;
 import com.example.devSns.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor // final 필드에 대한 생성자를 자동으로 만들어줍니다.
@@ -23,8 +26,10 @@ public class PostService {
     }
 
     // 모든 게시글 조회
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    public List<PostResponseDto>getAllPosts() {
+        return postRepository.findAll().stream()
+                .map(PostResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     // 특정 게시글 조회
