@@ -2,14 +2,8 @@ package com.example.devSns.domain;
 
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Entity
@@ -26,19 +20,31 @@ public class Post extends BaseTimeEntity{
     @Column(name = "like_count")
     private Long likeCount = 0L;
 
-    @Column(name = "user_name", nullable = false)
-    private String userName;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL)
+    private List<PostLikes> postLikes;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
     @Version
     private Long version;
 
-    public static Post create(String content, String userName) {
+
+    public Post() {}
+    public Post(String content, Member member) {
+        this.content = content;
+        this.member = member;
+    }
+
+    public static Post create(String content, Member member) {
         Post post = new Post();
         post.content = content;
-        post.userName = userName;
+        post.member = member;
         return post;
     }
 
@@ -67,12 +73,8 @@ public class Post extends BaseTimeEntity{
         this.likeCount = likeCount;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public Member getMember() {
+        return member;
     }
 
 
