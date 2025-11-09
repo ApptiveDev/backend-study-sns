@@ -17,9 +17,6 @@ public class Post extends BaseTimeEntity{
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "like_count")
-    private Long likeCount = 0L;
-
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments;
@@ -65,12 +62,12 @@ public class Post extends BaseTimeEntity{
         this.content = content;
     }
 
-    public Long getLikeCount() {
-        return likeCount;
+    public List<PostLikes> getPostLikes() {
+        return postLikes;
     }
 
-    public void setLikeCount(Long likeCount) {
-        this.likeCount = likeCount;
+    public List<Comment> getComments() {
+        return comments;
     }
 
     public Member getMember() {

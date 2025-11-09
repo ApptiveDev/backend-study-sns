@@ -2,6 +2,9 @@ package com.example.devSns.repository;
 
 import com.example.devSns.domain.Comment;
 import com.example.devSns.domain.Post;
+import com.example.devSns.dto.comment.CommentResponseDto;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,9 +22,24 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findTop15ByIdBeforeAndPostIdOrderByIdDesc(Long id, Long postId);
     List<Comment> findTop15ByCreatedAtBeforeAndPostIdOrderByCreatedAtDescPostIdDesc(LocalDateTime createdAt, Long postId);
 
-    @Modifying
-    @Query("update Comment c set c.likeCount = c.likeCount + 1 where c.id = :id")
-    void incrementLikeById(Long id);
+    @Query("""
+        SELECT new com.example.devSns.dto.comment.CommentResponseDto(
+            c.id,
+            c.content,
+            m.nickname,
+            (select count(*) as likes from CommentLikes cl where c = cl.comment),
+            c.createdAt,
+            c.updatedAt
+        )
+        FROM Comment c
+        JOIN c.member m
+        Where c.post.id = :postId
+    """)
+    Slice<CommentResponseDto> findCommentSliceByPostIdWithLikeCount(Pageable pageable, Long postId);
+
+//    @Modifying
+//    @Query("update Comment c set c.likeCount = c.likeCount + 1 where c.id = :id")
+//    void incrementLikeById(Long id);
 
     Long countCommentsByPostId(Long postId);
 

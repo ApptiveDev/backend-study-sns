@@ -29,8 +29,18 @@ public class Member extends BaseTimeEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL)
     private List<PostLikes> postLikes;
 
-
     @Version
     private Long version;
+
+    public Member() {}
+    public Member(String nickname) {}
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
 
 }

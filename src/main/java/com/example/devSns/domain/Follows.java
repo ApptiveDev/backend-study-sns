@@ -22,4 +22,8 @@ public class Follows extends BaseTimeEntity{
         this.follower = follower;
         this.following = following;
     }
+
+    public Long getId() {
+        return id;
+    }
 }

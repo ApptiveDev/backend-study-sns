@@ -21,4 +21,8 @@ public abstract class BaseLikeEntity extends BaseTimeEntity{
     public Member getMember() {
         return member;
     }
+
+    public Long getId() {
+        return id;
+    }
 }

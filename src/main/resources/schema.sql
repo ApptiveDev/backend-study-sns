@@ -53,6 +53,7 @@ create table if not exists posts_likes (
     member_id BIGINT,
     created_at TIMESTAMP  not null,
     updated_at TIMESTAMP  not null ,
+    constraint u_member_post unique (post_id, member_id),
     foreign key (post_id) references posts(id) on delete cascade,
     foreign key (member_id) references members(id) on delete cascade
 );
@@ -82,6 +83,7 @@ create table if not exists comments_likes (
        member_id BIGINT,
        created_at TIMESTAMP  not null,
        updated_at TIMESTAMP  not null ,
+        constraint u_member_comment unique (comment_id, member_id),
        foreign key (comment_id) references comments(id) on delete cascade,
        foreign key (member_id) references members(id) on delete cascade
 );

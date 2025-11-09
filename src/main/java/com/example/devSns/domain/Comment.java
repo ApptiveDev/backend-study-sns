@@ -23,8 +23,8 @@ public class Comment extends BaseTimeEntity{
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "like_count")
-    private Long likeCount = 0L;
+//    @Column(name = "like_count")
+//    private Long likeCount = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -39,6 +39,9 @@ public class Comment extends BaseTimeEntity{
 
     @Version
     private Long version;
+
+    public Comment() {}
+    public Comment(String content, Post post, Member member) {}
 
     public static Comment create(String content, Post post, Member member) {
         Comment comment = new Comment();
@@ -68,12 +71,8 @@ public class Comment extends BaseTimeEntity{
         this.content = content;
     }
 
-    public Long getLikeCount() {
-        return likeCount;
-    }
-
-    public void setLikeCount(Long likeCount) {
-        this.likeCount = likeCount;
+    public List<CommentLikes> getCommentLikes() {
+        return commentLikes;
     }
 
     public Member getMember() {

@@ -1,15 +1,20 @@
 package com.example.devSns.service;
 
 import com.example.devSns.domain.Comment;
+import com.example.devSns.domain.Member;
 import com.example.devSns.domain.Post;
 import com.example.devSns.dto.GenericDataDto;
 import com.example.devSns.dto.PaginatedDto;
 import com.example.devSns.dto.comment.CommentCreateDto;
 import com.example.devSns.dto.comment.CommentResponseDto;
+import com.example.devSns.dto.post.PostResponseDto;
 import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
 import com.example.devSns.repository.CommentRepository;
+import com.example.devSns.repository.MemberRepository;
 import com.example.devSns.repository.PostRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,23 +26,21 @@ import java.util.List;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
 
-    public CommentService(CommentRepository commentRepository, PostRepository postRepository) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository, MemberRepository memberRepository) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
+        this.memberRepository = memberRepository;
     }
 
     @Transactional
     public Long create(CommentCreateDto commentCreateDto) {
-        Post post = postRepository.findById(commentCreateDto.post_id())
+        Member member = memberRepository.findById(commentCreateDto.memberId()).orElseThrow(() -> new NotFoundException("Member not found"));
+        Post post = postRepository.findById(commentCreateDto.postId())
                 .orElseThrow(()->new InvalidRequestException("Invalid Request."));
 
-        Comment comment = Comment.create(
-                commentCreateDto.content(),
-                post,
-                commentCreateDto.userName()
-            );
-
+        Comment comment = new Comment(commentCreateDto.content(), post, member);
         return commentRepository.save(comment).getId();
     }
 
@@ -85,5 +88,9 @@ public class CommentService {
         Long nextQueryCriteria = comments.getLast().getId();
 
         return new PaginatedDto<>(commentResponseDtoList, nextQueryCriteria);
+    }
+
+    public Slice<CommentResponseDto> findAsSlice(Pageable pageable, Long postId) {
+        return commentRepository.findCommentSliceByPostIdWithLikeCount(pageable, postId);
     }
 }
