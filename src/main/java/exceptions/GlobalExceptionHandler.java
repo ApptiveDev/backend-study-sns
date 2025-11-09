@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.naming.AuthenticationException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
@@ -21,6 +23,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<String> handleDataAccessException(DataAccessException e) {
         ResponseEntity<String> response =
                 new ResponseEntity<>("DB 오류", HttpStatus.INTERNAL_SERVER_ERROR);
+        return response;
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleSecurityException(SecurityException e) {
+        ResponseEntity<String> response =
+                new ResponseEntity<>("접근 권한 없음", HttpStatus.FORBIDDEN);
         return response;
     }
 }

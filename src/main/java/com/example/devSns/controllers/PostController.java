@@ -33,13 +33,19 @@ public class PostController {
         return new ResponseEntity<>(postResponse, HttpStatus.CREATED);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostDTO postDTO) {
         PostResponse postResponse = postService.update(id, postDTO);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @PatchMapping("/{id}/likeit")
+    public ResponseEntity<PostResponse> likePost(@PathVariable Long id) {
+        PostResponse postResponse = postService.likePost(id);
+        return new ResponseEntity<>(postResponse, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePost(@PathVariable Long id) {
         postService.delete(id);
         return new ResponseEntity<>("Post deleted", HttpStatus.OK);

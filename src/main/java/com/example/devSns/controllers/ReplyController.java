@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/sns/reply")
 @RequiredArgsConstructor
 public class ReplyController {
     private final ReplyService replyService;
@@ -23,23 +23,30 @@ public class ReplyController {
         return responseEntity;
     }
 
-    @PostMapping("/{postId}")
-    public ResponseEntity<ReplyResponse> writeReply(@PathVariable long postId, long userId, ReplyDTO reply) {
-        ReplyResponse replyResponse = replyService.writeReply(postId, userId, reply);
+    @PostMapping("/{postId}/add")
+    public ResponseEntity<ReplyResponse> writeReply(@PathVariable long postId, @RequestBody ReplyDTO reply) {
+        ReplyResponse replyResponse = replyService.writeReply(postId, reply);
         ResponseEntity<ReplyResponse> responseEntity = new ResponseEntity<>(replyResponse, HttpStatus.OK);
         return responseEntity;
     }
 
-    @PatchMapping("/{postid}")
-    public ResponseEntity<ReplyResponse> updateReply(@PathVariable long postId, long userId, ReplyDTO reply) {
-        ReplyResponse replyResponse = replyService.updateReply(postId, userId, reply);
+    @PutMapping("/{replyId}")
+    public ResponseEntity<ReplyResponse> updateReply(@PathVariable long replyId, @RequestBody ReplyDTO reply) {
+        ReplyResponse replyResponse = replyService.updateReply(replyId, reply);
         ResponseEntity<ReplyResponse> responseEntity = new ResponseEntity<>(replyResponse, HttpStatus.OK);
         return responseEntity;
     }
 
-    @DeleteMapping("/{postId}")
-    public ResponseEntity<String> deleteReply(@PathVariable long postId, long userId) {
-        String deleteCheck = replyService.deleteReply(postId, userId);
+    @PatchMapping("/{id}")
+    public ResponseEntity<ReplyResponse> likeReply(@PathVariable long id) {
+        ReplyResponse replyResponse = replyService.likeReply(id);
+        ResponseEntity<ReplyResponse> responseEntity = new ResponseEntity<>(replyResponse, HttpStatus.OK);
+        return responseEntity;
+    }
+
+    @DeleteMapping("/{replyId}")
+    public ResponseEntity<String> deleteReply(@PathVariable long replyId) {
+        String deleteCheck = replyService.deleteReply(replyId);
         ResponseEntity<String> responseEntity = new ResponseEntity<>(deleteCheck, HttpStatus.OK);
         return responseEntity;
     }

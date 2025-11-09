@@ -1,7 +1,6 @@
 package com.example.devSns.dto;
 
 import com.example.devSns.entities.Posts;
-import com.example.devSns.entities.Users;
 import lombok.*;
 
 import java.time.LocalDateTime;

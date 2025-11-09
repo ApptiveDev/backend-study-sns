@@ -3,6 +3,7 @@ package com.example.devSns.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
@@ -25,7 +26,7 @@ public class Posts {
     @NotNull
     private Users users;
 
-    @Column
+    @ColumnDefault("0")
     private int likeit;
 
     @Column
@@ -44,5 +45,9 @@ public class Posts {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void setLikeit(int likeit) {
+        this.likeit = likeit;
     }
 }

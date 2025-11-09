@@ -8,15 +8,19 @@ import com.example.devSns.entities.Users;
 import com.example.devSns.repositories.PostRepository;
 import com.example.devSns.repositories.ReplyRepository;
 import com.example.devSns.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ReplyService {
     private final ReplyRepository replyRepository;
@@ -35,28 +39,39 @@ public class ReplyService {
     }
 
     @Transactional
-    public ReplyResponse writeReply(@PathVariable long postId, long userId, ReplyDTO reply) {
-        Posts post = postRepository.findById(postId).orElseThrow();
-        Users user = userRepository.findById(userId);
+    public ReplyResponse writeReply(@PathVariable long postId, ReplyDTO reply) {
+        Posts post = postRepository.findById(postId).orElseThrow(EntityNotFoundException::new);
+        Users user = userRepository.findById(reply.userID()).orElseThrow(EntityNotFoundException::new);
         Replies replyEntity = ReplyDTO.dtoToEntity(post, user, reply);
+        replyEntity.setCreateAt(LocalDateTime.now());
         replyRepository.save(replyEntity);
         return ReplyResponse.entityToDTO(replyEntity);
     }
 
     @Transactional
-    public ReplyResponse updateReply(@PathVariable long postId, long userId, ReplyDTO reply) {
-        Posts post = postRepository.findById(postId).orElseThrow();
-        Users user = userRepository.findById(userId);
-        Replies replyEntity = ReplyDTO.dtoToEntity(post, user, reply);
+    public ReplyResponse likeReply(@PathVariable long replyId) {
+        Replies replyEntity = replyRepository.findById(replyId);
+        replyEntity.setLikeit(replyEntity.getLikeit() + 1);
         replyRepository.save(replyEntity);
         return ReplyResponse.entityToDTO(replyEntity);
     }
 
     @Transactional
-    public String deleteReply(@PathVariable long postId, long userId) {
-        Posts post = postRepository.findById(postId).orElseThrow();
-        Users user = userRepository.findById(userId);
-        Replies replyEntity = replyRepository.findById(postId).orElseThrow();
+    public ReplyResponse updateReply (@PathVariable long replyId, ReplyDTO reply) {
+        Users user = userRepository.findById(reply.userID()).orElseThrow();
+        if(user.getId() != reply.userID()) {
+            throw new SecurityException();
+        }
+        Replies replyEntity = replyRepository.findById(replyId);
+        replyEntity.setReply(reply.comment());
+        replyEntity.setUpdateAt(LocalDateTime.now());
+        replyRepository.save(replyEntity);
+        return ReplyResponse.entityToDTO(replyEntity);
+    }
+
+    @Transactional
+    public String deleteReply(@PathVariable long replyId) {
+        Replies replyEntity = replyRepository.findById(replyId);
         replyRepository.delete(replyEntity);
         return "성공적으로 삭제되었습니다";
     }

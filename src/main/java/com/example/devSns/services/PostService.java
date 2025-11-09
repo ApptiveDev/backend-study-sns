@@ -63,6 +63,13 @@ public class PostService {
     }
 
     @Transactional
+    public PostResponse likePost(Long id) {
+        Posts postEntity = postRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        postEntity.setLikeit(postEntity.getLikeit() + 1);
+        return entityToDto(postEntity);
+    }
+
+    @Transactional
     public void delete(Long id) { // post 삭제
         Posts object = postRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("삭제하려는 Post를 찾을 수 없습니다."));
