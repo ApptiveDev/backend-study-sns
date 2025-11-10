@@ -8,5 +8,6 @@ public record TaskRequest(
         String description,
         LocalDate dueDate,
         Integer priority,
-        Task.Status status   // ✅ enum 타입 명시
+        Task.Status status,   // ✅ enum 타입 명시
+        Long memberId
 ) {}

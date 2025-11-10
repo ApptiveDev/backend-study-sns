@@ -27,7 +27,8 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<List<TaskResponse>> list() {
-        List<TaskResponse> tasks = service.findAll().stream()
+        List<TaskResponse> tasks = service.findAll()
+                .stream()
                 .map(TaskResponse::new)
                 .toList();
         return ResponseEntity.ok(tasks);

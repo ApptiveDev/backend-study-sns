@@ -34,7 +34,6 @@ public class MemberController {
     public List<Member> searchMembers(@RequestParam String keyword) {
         return memberService.searchMembers(keyword); // ★ 그대로 사용 가능
     }
-    // MemberController.java
     @GetMapping("/{id}/tasks")
     public List<Task> getMemberTasks(@PathVariable Long id) {
         Member member = memberService.getMember(id);

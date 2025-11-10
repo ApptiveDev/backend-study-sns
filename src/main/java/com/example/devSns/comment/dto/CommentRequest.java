@@ -10,6 +10,7 @@ public record CommentRequest(
         String content,
 
         @NotBlank(message = "Not blank")
-        String username
+        String username,
 
+        Long memberId
 ) {}

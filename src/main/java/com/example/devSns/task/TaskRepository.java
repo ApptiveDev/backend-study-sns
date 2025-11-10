@@ -3,5 +3,8 @@
 package com.example.devSns.task;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
-public interface TaskRepository extends JpaRepository<Task, Long> { }
+public interface TaskRepository extends JpaRepository<Task, Long> {
+    List<Task> findByMemberId(Long memberId);
+}
