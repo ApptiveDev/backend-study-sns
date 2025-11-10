@@ -1,10 +1,8 @@
 package com.example.devSns.task;
 
-import com.example.devSns.comment.Comment;
+import com.example.devSns.task.dto.TaskRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "tasks")
@@ -28,21 +26,31 @@ public class Task {
     @Column(nullable = false)
     private Status status = Status.TODO;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
-
     protected Task() {}
 
+    // ✅ 생성자: TaskRequest 기반 생성
+    public Task(TaskRequest r) {
+        this.title = r.title();
+        this.description = r.description();
+        this.dueDate = r.dueDate();
+        this.priority = r.priority();
+        this.status = (r.status() == null) ? Status.TODO : r.status();
+    }
+
+    // ✅ 부분 업데이트 메서드 (dirty checking 사용)
+    public void update(TaskRequest r) {
+        if (r.title() != null) this.title = r.title();
+        if (r.description() != null) this.description = r.description();
+        if (r.dueDate() != null) this.dueDate = r.dueDate();
+        if (r.priority() != null) this.priority = r.priority();
+        if (r.status() != null) this.status = r.status();
+    }
+
+    // Getter
     public Long getId() { return id; }
     public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
     public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
     public LocalDate getDueDate() { return dueDate; }
-    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
     public Integer getPriority() { return priority; }
-    public void setPriority(Integer priority) { this.priority = priority; }
     public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
-    public List<Comment> getComments() { return comments; }
 }

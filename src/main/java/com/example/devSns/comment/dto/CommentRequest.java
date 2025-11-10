@@ -1,24 +1,15 @@
 package com.example.devSns.comment.dto;
 
-public class CommentRequest {
-    private String content;
-    private String username;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-    public CommentRequest() {}
+public record CommentRequest(
 
-    public String getContent() {
-        return content;
-    }
+        @NotBlank(message = "Not blank")
+        @Size(max = 1000)
+        String content,
 
-    public void setContent(String content) {   // ← 이거 추가
-        this.content = content;
-    }
+        @NotBlank(message = "Not blank")
+        String username
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) { // ← 이거 추가
-        this.username = username;
-    }
-}
+) {}

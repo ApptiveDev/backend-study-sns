@@ -1,14 +1,12 @@
-//client가 보낸 json 요청 받기 위한 dto
-
 package com.example.devSns.task.dto;
 
-import com.example.devSns.task.Task;
 import java.time.LocalDate;
+import com.example.devSns.task.Task; // ✅ 이 import 꼭 필요!
 
-public class TaskRequest {
-    public String title;
-    public String description;
-    public LocalDate dueDate;
-    public Integer priority;
-    public Task.Status status;
-}
+public record TaskRequest(
+        String title,
+        String description,
+        LocalDate dueDate,
+        Integer priority,
+        Task.Status status   // ✅ enum 타입 명시
+) {}
