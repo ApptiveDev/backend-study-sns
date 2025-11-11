@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @NoArgsConstructor
@@ -25,5 +25,5 @@ public class Users {
     @NotNull
     private Integer age;
 
-    private Date birthday;
+    private LocalDate birthday;
 }
