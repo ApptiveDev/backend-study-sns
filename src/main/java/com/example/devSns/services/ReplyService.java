@@ -27,7 +27,7 @@ public class ReplyService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ReplyResponse> replyGetAll(@PathVariable long postId) {
         Posts post = postRepository.findById(postId).orElseThrow();
         List<Replies> replies = replyRepository.findByPosts(post);

@@ -35,10 +35,6 @@ public class Posts {
     @Column
     private LocalDateTime updateat;
 
-    public void setCreateat(LocalDateTime createat) {
-        this.createat = createat;
-    }
-
     public void setUpdateat(LocalDateTime updateat) {
         this.updateat = updateat;
     }

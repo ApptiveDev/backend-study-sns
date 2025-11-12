@@ -28,7 +28,6 @@ public class PostService {
     public PostResponse save(PostDTO postDTO) {
         Users user = userRepository.findById(postDTO.userId()).orElseThrow(EntityNotFoundException::new);
         Posts postEntity = dtoToEntity(postDTO, user);
-        postEntity.setCreateat(LocalDateTime.now());
         Posts resultEntity = postRepository.save(postEntity);
         return entityToDto(resultEntity);
     }
