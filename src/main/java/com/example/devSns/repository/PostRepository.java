@@ -13,9 +13,9 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Modifying
-    @Query("update Post p set p.likeCount = p.likeCount + 1 where p.id = :id ")
-    void incrementLikeById(Long id);
+//    @Modifying
+//    @Query("update Post p set p.likeCount = p.likeCount + 1 where p.id = :id ")
+//    void incrementLikeById(Long id);
 
     List<Post> findTop15ByIdBeforeOrderByIdDesc(Long id);
     List<Post> findTop15ByCreatedAtBeforeOrderByCreatedAtDesc(LocalDateTime createdAt);

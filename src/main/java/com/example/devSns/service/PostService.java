@@ -59,36 +59,6 @@ public class PostService {
         return findOne(id);
     }
 
-    @Transactional
-    public void like(Long id) {
-        postRepository.findById(id).orElseThrow(()->new NotFoundException("post not found"));
-        postRepository.incrementLikeById(id);
-    }
-
-
-//    public PaginatedDto<List<PostResponseDto>> findAsPaginated(GenericDataDto<Long> idDto) {
-//        Long criteria = idDto.data();
-//        List<Post> posts = criteria == null ?
-//                postRepository.findTop15ByCreatedAtBeforeOrderByCreatedAtDesc(LocalDateTime.now().plusSeconds(1)) :
-//                postRepository.findTop15ByIdBeforeOrderByIdDesc(criteria);
-//
-//        if (posts.isEmpty()) {
-//            return new PaginatedDto<>(List.of(), null);
-//        }
-////        List<Long> postIds = posts.stream().map(Post::getId).toList();
-//        Map<Long, Long> commentMapping = new HashMap<>();
-//        commentRepository.countCommentsAndGroupByPostIdIn(posts)
-//                .forEach(o -> {commentMapping.put(o[0], o[1]);});
-//
-//
-//        List<PostResponseDto> postResponseDtoList = posts.stream()
-//                .map((p)->PostResponseDto.from(p, commentMapping.get(p.getId())))
-//                .toList();
-//
-//        Long nextQueryCriteria = posts.getLast().getId();
-//        return new PaginatedDto<>(postResponseDtoList, nextQueryCriteria);
-//    }
-
     public Slice<PostResponseDto> findAsSlice(Pageable pageable) {
         return postRepository.findPostSliceWithLikeCountAndCommentCount(pageable);
     }

@@ -2,6 +2,7 @@ package com.example.devSns.service;
 
 import com.example.devSns.domain.Follows;
 import com.example.devSns.domain.Member;
+import com.example.devSns.dto.GenericDataDto;
 import com.example.devSns.dto.follow.FollowCreateDto;
 import com.example.devSns.dto.member.MemberCreateDto;
 import com.example.devSns.dto.member.MemberResponseDto;
@@ -10,6 +11,8 @@ import com.example.devSns.repository.FollowsRepository;
 import com.example.devSns.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,11 +32,15 @@ public class MemberService {
     }
 
     public MemberResponseDto getOne(Long id) {
-        Member member =  memberRepository.findById(id).orElseThrow(()->new NotFoundException("Member not found"));
+        Member member = memberRepository.findById(id).orElseThrow(() -> new NotFoundException("Member not found"));
 
         return new MemberResponseDto(member.getId(), member.getNickname());
     }
 
+    public List<MemberResponseDto> findByNickname(GenericDataDto<String> nicknameDto) {
+        List<Member> members = memberRepository.findByNickname(nicknameDto.data());
 
+        return members.stream().map(MemberResponseDto::from).toList();
+    }
 
 }

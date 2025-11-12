@@ -67,12 +67,6 @@ public class CommentService {
         return findOne(id);
     }
 
-    @Transactional
-    public void like(Long id) {
-        commentRepository.findById(id).orElseThrow(()->new NotFoundException("comment not found"));
-        commentRepository.incrementLikeById(id);
-    }
-
     public PaginatedDto<List<CommentResponseDto>> findAsPaginated(GenericDataDto<Long> idDto, Long postId) {
         Long criteria = idDto.data();
         List<Comment> comments = criteria == null ?

@@ -1,11 +1,12 @@
 package com.example.devSns.controller;
 
 import com.example.devSns.dto.GenericDataDto;
+import com.example.devSns.dto.likes.LikesRequestDto;
 import com.example.devSns.dto.post.PostCreateDto;
 import com.example.devSns.dto.post.PostResponseDto;
 //import com.example.devSns.repository.PostRepository;
 import com.example.devSns.dto.postLikes.PostLikesRequestDto;
-import com.example.devSns.service.PostLikeService;
+import com.example.devSns.service.PostLikesService;
 import com.example.devSns.service.PostService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -24,11 +25,11 @@ import java.net.URI;
 public class PostController {
 
     private final PostService postService;
-    private final PostLikeService postLikeService;
+    private final PostLikesService postLikesService;
 
-    public PostController(PostService postService, PostLikeService postLikeService) {
+    public PostController(PostService postService, PostLikesService postLikesService) {
         this.postService = postService;
-        this.postLikeService = postLikeService;
+        this.postLikesService = postLikesService;
     }
 
     @PostMapping
@@ -70,11 +71,6 @@ public class PostController {
         return ResponseEntity.ok().body(posts);
     }
 
-    @PostMapping("/{id}/likes")
-    public ResponseEntity<PostResponseDto> like(@PathVariable @Positive Long id, @RequestBody @Valid PostLikesRequestDto postLikesRequestDto) {
-        postLikeService.like(postLikesRequestDto);
-        return ResponseEntity.noContent().build();
-    }
 
     @PatchMapping("/{id}/contents")
     public ResponseEntity<PostResponseDto> contents(
