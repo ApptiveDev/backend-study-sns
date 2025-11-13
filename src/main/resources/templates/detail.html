@@ -29,7 +29,7 @@
         <li th:each="comment : ${post.comments}">
             <p><b th:text="${comment.username}"></b></p>
             <p th:text="${comment.content}"></p>
-            <p><small th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></small></p>
+            <p>작성일: <small th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></small></p>
 
             <form th:action="@{'/comments/' + ${comment.id} + '/delete'}" method="post">
                 <input type="hidden" name="postId" th:value="${post.id}">
