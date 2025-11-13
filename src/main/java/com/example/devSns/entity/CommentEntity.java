@@ -19,6 +19,10 @@ public class CommentEntity {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private MemberEntity member;
+
     // Post와 N:1 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
