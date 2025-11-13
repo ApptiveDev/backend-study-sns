@@ -26,7 +26,7 @@ public class PostService {
 
     @Transactional // 트랜잭션 보장
     public PostResponse save(PostDTO postDTO) {
-        Users user = userRepository.findById(postDTO.userId()).orElseThrow(EntityNotFoundException::new);
+        Users user = userRepository.findById(postDTO.userId()).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
         Posts postEntity = dtoToEntity(postDTO, user);
         Posts resultEntity = postRepository.save(postEntity);
         return entityToDto(resultEntity);
@@ -43,8 +43,9 @@ public class PostService {
     }
 
     @Transactional
-    public List<PostResponse> findByUserID(Long userID) { // 작성자 기준 post 조회
-        List<Posts> postsByName = postRepository.findByUsersId(userID);
+    public List<PostResponse> findByUserID(Long userID) {
+        Users user = userRepository.findById(userID).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));// 작성자 기준 post 조회
+        List<Posts> postsByName = postRepository.findByUsers(user);
         List<PostResponse> postResponses = new ArrayList<>();
         for (Posts post : postsByName) {
             postResponses.add(entityToDto(post));

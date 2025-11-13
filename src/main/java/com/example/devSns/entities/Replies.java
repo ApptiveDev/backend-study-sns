@@ -42,10 +42,6 @@ public class Replies {
         this.reply = reply;
     }
 
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
-    }
-
     public void setUpdateAt(LocalDateTime updateAt) {
         this.updateAt = updateAt;
     }

@@ -29,7 +29,7 @@ public class ReplyService {
 
     @Transactional(readOnly = true)
     public List<ReplyResponse> replyGetAll(@PathVariable long postId) {
-        Posts post = postRepository.findById(postId).orElseThrow();
+        Posts post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
         List<Replies> replies = replyRepository.findByPosts(post);
         List<ReplyResponse> repliesResponse = new ArrayList<>();
         for (Replies reply:  replies) {
@@ -40,10 +40,9 @@ public class ReplyService {
 
     @Transactional
     public ReplyResponse writeReply(@PathVariable long postId, ReplyDTO reply) {
-        Posts post = postRepository.findById(postId).orElseThrow(EntityNotFoundException::new);
-        Users user = userRepository.findById(reply.userID()).orElseThrow(EntityNotFoundException::new);
+        Posts post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+        Users user = userRepository.findById(reply.userID()).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
         Replies replyEntity = ReplyDTO.dtoToEntity(post, user, reply);
-        replyEntity.setCreateAt(LocalDateTime.now());
         replyRepository.save(replyEntity);
         return ReplyResponse.entityToDTO(replyEntity);
     }
@@ -58,7 +57,7 @@ public class ReplyService {
 
     @Transactional
     public ReplyResponse updateReply (@PathVariable long replyId, ReplyDTO reply) {
-        Users user = userRepository.findById(reply.userID()).orElseThrow();
+        Users user = userRepository.findById(reply.userID()).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
         if(user.getId() != reply.userID()) {
             throw new SecurityException();
         }
