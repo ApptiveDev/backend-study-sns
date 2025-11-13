@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h2 th:text="${post.title}">제목</h2>
+    <h2 th:text="${post.content}">내용</h2>
+    <p>
+        <b>작성자:</b>
+        <span th:text="${post.author}"></span>
+    </p>
+
+    <a th:href="@{|/posts/${post.id}/edit|}">
+        <button type="button">수정</button>
+    </a>
+    <form th:action="@{|/posts/${post.id}/delete|}" method="post">
+        <button type="submit">삭제</button>
+    </form>
+    <a th:href="@{|/posts|}">
+        <button type="button">게시글 보기</button>
+    </a>
+
+    <hr />
+    <h3>댓글</h3>
+
+    <div th:if="${#lists.isEmpty(post.comments)}">
+        <p>댓글이 없습니다.</p>
+    </div>
+
+    <ul th:if="${!#lists.isEmpty(post.comments)}">
+        <li th:each="comment : ${post.comments}">
+            <p><b th:text="${comment.username}"></b></p>
+            <p th:text="${comment.content}"></p>
+            <p>작성일: <small th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></small></p>
+
+            <form th:action="@{'/comments/' + ${comment.id} + '/delete'}" method="post">
+                <input type="hidden" name="postId" th:value="${post.id}">
+                <button type="submit">댓글 삭제</button>
+            </form>
+
+            <hr/>
+        </li>
+    </ul>
+
+    <hr />
+
+    <h3>댓글 작성하기</h3>
+
+    <form th:action="@{'/comments/' + ${post.id}}" method="post">
+        <p>
+            작성자:
+            <input type="text" name="username" required />
+        </p>
+        <p>
+            내용:<br/>
+            <textarea name="content" rows="4" cols="50" required></textarea>
+        </p>
+
+        <button type="submit">댓글 등록</button>
+    </form>
+
+</body>
+</html>
