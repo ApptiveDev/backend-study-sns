@@ -11,7 +11,7 @@ import com.example.devSns.Post.Post;
 
 import com.example.devSns.Post.PostRepository;
 import com.example.devSns.Post.PostService;
-import jakarta.persistence.EntityNotFoundException;
+import com.example.devSns.global.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
