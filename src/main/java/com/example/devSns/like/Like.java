@@ -6,7 +6,7 @@ import com.example.devSns.member.Member;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "comments")
+@Table(name = "likes")
 
 public class Like {
 
@@ -31,4 +31,5 @@ public class Like {
     public Member getMember() { return member; }
     public Comment getComment() { return comment; }
 
+    public Long getId() {return id;}
 }
