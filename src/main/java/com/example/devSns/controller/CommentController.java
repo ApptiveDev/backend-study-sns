@@ -1,5 +1,6 @@
 package com.example.devSns.controller;
 
+import com.example.devSns.dto.CommentRequest;
 import com.example.devSns.entity.CommentEntity;
 import com.example.devSns.service.CommentService;
 import org.springframework.stereotype.Controller;
@@ -16,8 +17,8 @@ public class CommentController {
 
     // 댓글 생성
     @PostMapping("/{postId}")
-    public String createComment(@PathVariable Long postId, @ModelAttribute CommentEntity commentEntity) {
-        commentService.createComment(postId, commentEntity);
+    public String createComment(@PathVariable Long postId, @ModelAttribute CommentRequest request) {
+        commentService.createComment(postId, request);
         return "redirect:/posts/" + postId;
     }
 

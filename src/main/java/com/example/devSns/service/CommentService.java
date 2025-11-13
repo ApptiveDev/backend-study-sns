@@ -1,5 +1,7 @@
 package com.example.devSns.service;
 
+import com.example.devSns.dto.CommentRequest;
+import com.example.devSns.dto.CommentResponse;
 import com.example.devSns.entity.CommentEntity;
 import com.example.devSns.entity.PostEntity;
 import com.example.devSns.repository.CommentRepository;
@@ -21,17 +23,36 @@ public class CommentService {
     }
 
     // 특정 게시글 댓글 조회
-    public List<CommentEntity> getCommentsByPost(Long postId) {
+    public List<CommentResponse> getCommentsByPost(Long postId) {
         PostEntity postEntity = postRepository.findById(postId).orElseThrow();
-        return postEntity.getComments();
+        return postEntity.getComments().stream()
+                .map(comment -> new CommentResponse(
+                        comment.getId(),
+                        comment.getUsername(),
+                        comment.getContent(),
+                        comment.getCreatedAt().toString()
+                ))
+                .toList();
     }
 
     // 댓글 생성
     @Transactional
-    public CommentEntity createComment(Long postId, CommentEntity comment) {
+    public CommentResponse createComment(Long postId, CommentRequest request) {
         PostEntity postEntity = postRepository.findById(postId).orElseThrow();
-        comment.setPost(postEntity);
-        return commentRepository.save(comment);
+        CommentEntity comment = CommentEntity.create(
+                postEntity,
+                request.getUsername(),
+                request.getContent()
+        );
+
+        commentRepository.save(comment);
+
+        return new CommentResponse(
+                comment.getId(),
+                comment.getUsername(),
+                comment.getContent(),
+                comment.getCreatedAt().toString()
+        );
     }
 
     // 댓글 삭제

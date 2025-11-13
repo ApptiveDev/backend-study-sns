@@ -25,7 +25,7 @@ public class PostEntity {
     private LocalDateTime updatedAt;
 
     // post를 삭제하면 댓글도 같이 삭제
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "postEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments = new ArrayList<>();
 
     @PrePersist

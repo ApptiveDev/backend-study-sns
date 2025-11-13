@@ -2,12 +2,12 @@ package com.example.devSns.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+// DTO를 사용하고 Setter를 삭제 (안전)
 @Entity
 @Getter
-@Setter
 public class CommentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +15,6 @@ public class CommentEntity {
 
     private String content;
     private String username;
-    private int likes;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -23,7 +22,23 @@ public class CommentEntity {
     // Post와 N:1 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
-    private PostEntity post;
+    private PostEntity postEntity;
+
+    // JPA 기본 생성자
+    protected CommentEntity() {}
+
+    // 정적 생성 메서드 > 엔터티 변경은 오직 메서드로
+    public static CommentEntity create(PostEntity postEntity, String username, String content) {
+        CommentEntity comment = new CommentEntity();
+        comment.postEntity = postEntity;
+        comment.username = username;
+        comment.content = content;
+        return comment;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 
     @PrePersist
     public void onCreate() {

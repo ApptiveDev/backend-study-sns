@@ -29,9 +29,8 @@
         <li th:each="comment : ${post.comments}">
             <p><b th:text="${comment.username}"></b></p>
             <p th:text="${comment.content}"></p>
-            <p><small th:text="${comment.createdAt}"></small></p>
+            <p><small th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></small></p>
 
-            <!-- 댓글 삭제 -->
             <form th:action="@{'/comments/' + ${comment.id} + '/delete'}" method="post">
                 <input type="hidden" name="postId" th:value="${post.id}">
                 <button type="submit">댓글 삭제</button>
