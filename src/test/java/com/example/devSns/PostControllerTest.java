@@ -1,6 +1,8 @@
 package com.example.devSns;
 
+import com.example.devSns.entity.Member;
 import com.example.devSns.entity.Post;
+import com.example.devSns.repository.MemberRepository;
 import com.example.devSns.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,54 +19,65 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class PostControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private PostRepository postRepository;
+    @Autowired MockMvc mockMvc;
+    @Autowired PostRepository postRepository;
+    @Autowired MemberRepository memberRepository;
 
     @BeforeEach
     void cleanDB() {
         postRepository.deleteAll();
+        memberRepository.deleteAll();
     }
 
     @Test
     void 게시글_생성_성공() throws Exception {
+
+        Member member = memberRepository.save(
+                Member.create("강지원", "test@test.com", "1234")
+        );
+
         String json = """
-            {
-              "username": "dardar",
-              "content": "테스트 게시글입니다."
-            }
-        """;
+        {
+          "memberId": %d,
+          "content": "테스트 게시글입니다."
+        }
+        """.formatted(member.getId());
 
         mockMvc.perform(post("/post")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("dardar"))
-                .andExpect(jsonPath("$.content").value("테스트 게시글입니다."));
+                .andExpect(jsonPath("$.content").value("테스트 게시글입니다."))
+                .andExpect(jsonPath("$.memberId").value(member.getId()));
     }
 
     @Test
     void 게시글_조회_성공() throws Exception {
-        Post post = Post.builder()
-                .username("tester")
-                .content("조회용 게시글")
-                .build();
-        postRepository.save(post);
+
+        Member member = memberRepository.save(
+                Member.create("tester", "tester@test.com", "1234")
+        );
+
+        Post post = postRepository.save(
+                Post.create("조회용 게시글", member)
+        );
 
         mockMvc.perform(get("/post/" + post.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("tester"))
-                .andExpect(jsonPath("$.content").value("조회용 게시글"));
+                .andExpect(jsonPath("$.content").value("조회용 게시글"))
+                .andExpect(jsonPath("$.memberId").value(member.getId()));
     }
 
     @Test
     void 게시글_수정_성공() throws Exception {
-        Post post = postRepository.save(Post.builder()
-                .username("tester")
-                .content("원본 내용")
-                .build());
+
+        Member member = memberRepository.save(
+                Member.create("tester", "tester@test.com", "1234")
+        );
+
+        Post post = postRepository.save(
+                Post.create("원본 내용", member)
+        );
 
         String updateJson = """
             {
@@ -72,7 +85,7 @@ class PostControllerTest {
             }
         """;
 
-        mockMvc.perform(put("/post/" + post.getId())
+        mockMvc.perform(patch("/post/" + post.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateJson))
                 .andExpect(status().isOk())
@@ -81,10 +94,14 @@ class PostControllerTest {
 
     @Test
     void 게시글_삭제_성공() throws Exception {
-        Post post = postRepository.save(Post.builder()
-                .username("tester")
-                .content("삭제 대상 게시글")
-                .build());
+
+        Member member = memberRepository.save(
+                Member.create("tester", "tester@test.com", "1234")
+        );
+
+        Post post = postRepository.save(
+                Post.create("삭제 대상 게시글", member)
+        );
 
         mockMvc.perform(delete("/post/" + post.getId()))
                 .andExpect(status().isOk());

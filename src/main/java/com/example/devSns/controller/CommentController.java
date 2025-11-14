@@ -1,5 +1,8 @@
 package com.example.devSns.controller;
 
+import com.example.devSns.dto.CommentCreateRequest;
+import com.example.devSns.dto.CommentResponse;
+import com.example.devSns.dto.CommentUpdateRequest;
 import com.example.devSns.entity.Comment;
 import com.example.devSns.service.CommentService;
 import org.springframework.http.ResponseEntity;
@@ -8,36 +11,26 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/post/{postId}/comment")
+@RequestMapping("/posts/{postId}/comments")
 public class CommentController {
-    private CommentService commentService;
+    private final CommentService commentService;
 
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
 
     @GetMapping
-    public List<Comment> getComments(@PathVariable Long postId) {
-        return commentService.getCommentByPost(postId);
+    public List<CommentResponse> getComments(@PathVariable Long postId) {
+        return commentService.getCommentByPost(postId).stream()
+                .map(CommentResponse::new)
+                .toList();
     }
 
     @PostMapping
-    public Comment createComment(@PathVariable Long postId, @RequestBody Comment comment) {
-        return commentService.addComment(postId, comment);
+    public CommentResponse createComment(@PathVariable Long postId, @RequestBody CommentCreateRequest request) {
+        Comment created = commentService.addComment(postId, request);
+        return new CommentResponse(created);
     }
 
-    @DeleteMapping("/{commentId}")
-    public void deleteComment(@PathVariable Long commentId) {
-        commentService.deleteComment(commentId);
-    }
 
-    @PatchMapping("/{commentId}")
-    public ResponseEntity<Comment> updateComment(
-            @PathVariable Long commentId,
-            @RequestBody Map<String, String> request
-    ) {
-        String newContent = request.get("content");
-        Comment updated = commentService.updateComment(commentId, newContent);
-        return ResponseEntity.ok(updated);
-    }
 }

@@ -22,11 +22,13 @@ public class Comment{
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name="post_id",
-            nullable = false,
-            foreignKey = @ForeignKey(name = "fk_diary_user_id_ref_user_id")
+            nullable = false
     )
-    @JsonBackReference
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @PrePersist
     public void onCreate(){
@@ -37,5 +39,17 @@ public class Comment{
     }
     public void assignTo(Post post){
         this.post = post;
+    }
+    public void assignMember(Member member){
+        this.member = member;
+        member.addComment(this);
+    }
+    public static Comment create(String content, Member member, Post post) {
+        return Comment.builder()
+                .content(content)
+                .username(member.getUsername())
+                .member(member)
+                .post(post)
+                .build();
     }
 }
