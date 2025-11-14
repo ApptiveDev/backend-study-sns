@@ -1,10 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org">
 <body>
-$END$
+<h2>전체 멤버 목록</h2>
+
+<a href="/members/new">새 멤버 만들기</a>
+
+<form action="/members/search" method="get">
+    <input type="text" name="keyword" placeholder="검색(이름)">
+    <button type="submit">검색</button>
+</form>
+
+<hr/>
+
+<ul>
+    <li th:each="m : ${members}">
+        <a th:href="@{|/members/${m.id}|}"
+           th:text="${m.username}"></a>
+        ( <span th:text="${m.email}"></span> )
+    </li>
+</ul>
+
+<a href="/posts">게시글 목록</a>
+
 </body>
 </html>

@@ -25,6 +25,9 @@ public class MemberEntity {
     @OneToMany(mappedBy = "member")
     private List<CommentEntity> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member")
+    private List<LikeEntity> likes = new ArrayList<>();
+
     protected MemberEntity() {}
 
     public static MemberEntity create(String username, String email) {

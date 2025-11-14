@@ -1,6 +1,9 @@
 package com.example.devSns.controller;
 
+import com.example.devSns.entity.MemberEntity;
 import com.example.devSns.entity.PostEntity;
+import com.example.devSns.repository.LikeRepository;
+import com.example.devSns.repository.MemberRepository;
 import com.example.devSns.service.PostService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,10 +14,16 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final LikeRepository likeRepository;
+    private final MemberRepository memberRepository;
 
     // 생성자
-    public PostController(PostService postService) {
+    public PostController(PostService postService,
+                          LikeRepository likeRepository,
+                          MemberRepository memberRepository) {
         this.postService = postService;
+        this.likeRepository = likeRepository;
+        this.memberRepository = memberRepository;
     }
 
     // HTTP GET /posts
@@ -41,7 +50,24 @@ public class PostController {
     // HTTP GET /posts/{id}
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("post", postService.getPost(id));
+        PostEntity postEntity = postService.getPost(id);
+
+        // 임시 멤버 아이디
+        Long memberId = 1L;
+        MemberEntity member = memberRepository.findById(memberId).orElseThrow();
+
+        // 좋아요 수
+        int likeCount = likeRepository.countByPostId(id);
+
+        // 좋아요 여부
+        boolean liked = likeRepository
+                .findByMemberAndPost(member, postEntity)
+                .isPresent();
+
+        model.addAttribute("post", postEntity);
+        model.addAttribute("likeCount", likeCount);
+        model.addAttribute("liked", liked);
+        model.addAttribute("memberId", memberId);
         return "detail";
     }
 

@@ -1,6 +1,7 @@
 package com.example.devSns.service;
 
 import com.example.devSns.entity.CommentEntity;
+import com.example.devSns.entity.LikeEntity;
 import com.example.devSns.entity.MemberEntity;
 import com.example.devSns.entity.PostEntity;
 import com.example.devSns.repository.MemberRepository;
@@ -43,4 +44,15 @@ public class MemberService {
     public List<CommentEntity> getMemberComments(Long id) {
         return getMember(id).getComments();
     }
+
+    // 멤버가 누른 좋아요 목록
+    public List<LikeEntity> getMemberLikes(Long id) {
+        return getMember(id).getLikes();
+    }
+
+    // 멤버 조회
+    public List<MemberEntity> getAllMembers() {
+        return memberRepository.findAll();
+    }
+
 }

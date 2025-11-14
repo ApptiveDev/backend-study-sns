@@ -1,10 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org">
 <body>
-$END$
+
+<h2>새 멤버 생성</h2>
+
+<form action="/members" method="post">
+    <p>
+        이름: <input type="text" name="username" required>
+    </p>
+
+    <p>
+        이메일: <input type="email" name="email" required>
+    </p>
+
+    <button type="submit">등록</button>
+</form>
+
+<hr/>
+<a href="/members">전체 멤버 목록 보기</a>
+
 </body>
 </html>

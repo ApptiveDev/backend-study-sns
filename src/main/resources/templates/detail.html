@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
+    <!-- 제목 / 내용 -->
     <h2 th:text="${post.title}">제목</h2>
     <h2 th:text="${post.content}">내용</h2>
     <p>
@@ -8,6 +9,7 @@
         <span th:text="${post.author}"></span>
     </p>
 
+    <!-- 수정 / 삭제 버튼 -->
     <a th:href="@{|/posts/${post.id}/edit|}">
         <button type="button">수정</button>
     </a>
@@ -18,6 +20,23 @@
         <button type="button">게시글 보기</button>
     </a>
 
+    <!-- 좋아요 -->
+    <hr/>
+
+    <div>
+        <button id="like-btn"
+                th:data-post-id="${post.id}"
+                th:data-member-id="${memberId}"
+                th:classappend="${liked} ? ' liked' : ''"
+                style="border:none; background:none; cursor:pointer; font-size:18px;">
+            <span id="like-icon" th:text="${liked} ? '❤️' : '🤍'"></span>
+            <span id="like-count" th:text="${likeCount}"></span>
+        </button>
+    </div>
+
+    <hr/>
+
+    <!-- 댓글 -->
     <hr />
     <h3>댓글</h3>
 
@@ -29,7 +48,9 @@
         <li th:each="comment : ${post.comments}">
             <p><b th:text="${comment.username}"></b></p>
             <p th:text="${comment.content}"></p>
-            <p>작성일: <small th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></small></p>
+            <p>작성일:
+                <small th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
+            </p>
 
             <form th:action="@{'/comments/' + ${comment.id} + '/delete'}" method="post">
                 <input type="hidden" name="postId" th:value="${post.id}">
@@ -42,6 +63,7 @@
 
     <hr />
 
+    <!-- 댓글 작성 -->
     <h3>댓글 작성하기</h3>
 
     <form th:action="@{'/comments/' + ${post.id}}" method="post">
@@ -56,6 +78,39 @@
 
         <button type="submit">댓글 등록</button>
     </form>
+
+    <!-- 좋아요 Ajax 스크럽트 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const btn = document.getElementById("like-btn");
+
+            btn.addEventListener("click", async function () {
+                const postId = btn.dataset.postId;
+                const memberId = btn.dataset.memberId;
+
+                const likedNow = btn.classList.contains("liked");
+                const method = likedNow ? "DELETE" : "POST";
+
+                const res = await fetch(`/posts/${postId}/like?memberId=${memberId}`, {
+                    method: method
+                });
+
+                const data = await res.json();
+
+                // UI 업데이트(좋아요 수)
+                document.getElementById("like-count").textContent = data.likeCount;
+
+                // UI 업데이트(하트 아이콘)
+                if (data.liked) {
+                    btn.classList.add("liked");
+                    document.getElementById("like-icon").textContent = "❤️";
+                } else {
+                    btn.classList.remove("liked");
+                    document.getElementById("like-icon").textContent = "🤍";
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
