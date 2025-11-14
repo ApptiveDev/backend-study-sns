@@ -11,4 +11,5 @@ public interface PostRepository extends JpaRepository<Posts, Long> {
     public List<Posts> findAll();
     public Optional<Posts> findById(Integer id);
     public List<Posts> findByUsers(Users user);
+    public List<Posts> findByContentContaining(String partialContent);
 }

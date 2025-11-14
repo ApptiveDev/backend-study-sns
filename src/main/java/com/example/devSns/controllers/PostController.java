@@ -27,6 +27,12 @@ public class PostController {
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
+    @GetMapping("/show/{content}")
+    public ResponseEntity<List<PostResponse>> showPost(@PathVariable String content) {
+        List<PostResponse> post = postService.findByContent(content);
+        return new ResponseEntity<>(post, HttpStatus.OK);
+    }
+
     @PostMapping("/add")
     public ResponseEntity<PostResponse> addPost(@RequestBody PostDTO postDTO) {
         PostResponse postResponse = postService.save(postDTO);

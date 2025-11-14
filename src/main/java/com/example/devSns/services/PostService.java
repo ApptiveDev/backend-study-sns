@@ -54,6 +54,16 @@ public class PostService {
     }
 
     @Transactional
+    public List<PostResponse> findByContent(String content) {
+        List<Posts> postsByContent = postRepository.findByContentContaining(content);
+        List<PostResponse> postResponses = new ArrayList<>();
+        for (Posts post : postsByContent) {
+            postResponses.add(entityToDto(post));
+        }
+        return postResponses;
+    }
+
+    @Transactional
     public PostResponse update(Long id, PostDTO postDTO) { // 수정된 post 반영
         Posts postEntity = postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("수정하려는 Post를 찾을 수 없습니다."));
