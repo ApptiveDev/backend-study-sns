@@ -16,8 +16,8 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-
     // 1. 게시글 생성
+
     @PostMapping
     public PostResponseDto createPost(@RequestBody PostRequestDto requestDto) {
         Post post = postService.createPost(requestDto);

@@ -11,6 +11,7 @@ public class PostResponseDto {
     private final String authorNickname; // 작성자 닉네임
     private final int likeCount; // 좋아요 수
 
+
     public PostResponseDto(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();

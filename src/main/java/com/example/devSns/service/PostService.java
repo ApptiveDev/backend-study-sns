@@ -24,7 +24,6 @@ public class PostService {
     public Post createPost(PostRequestDto requestDto) {
         Member member = memberService.getMemberById(requestDto.getMemberId());
         Post post = new Post(requestDto.getTitle(), requestDto.getContent(), member);
-        return postRepository.save(post);
     }
 
     // 모든 게시글 조회
@@ -63,7 +62,6 @@ public class PostService {
         if (!post.getMember().getId().equals(memberId)) {
             throw new IllegalArgumentException("You are not authorized to delete this post.");
         }
-
         postRepository.deleteById(id);
     }
 }
