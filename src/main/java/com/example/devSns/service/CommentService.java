@@ -87,4 +87,8 @@ public class CommentService {
     public Slice<CommentResponseDto> findAsSlice(Pageable pageable, Long postId) {
         return commentRepository.findCommentSliceByPostIdWithLikeCount(pageable, postId);
     }
+
+    public Slice<CommentResponseDto> findByMemberAsSlice(Pageable pageable, Long memberId) {
+        return commentRepository.findCommentSliceByMemberIdWithLikeCount(pageable, memberId);
+    }
 }

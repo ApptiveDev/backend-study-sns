@@ -1,15 +1,17 @@
 package com.example.devSns.service;
 
 import com.example.devSns.domain.*;
-import com.example.devSns.dto.commentLikes.CommentLikesRequestDto;
-import com.example.devSns.dto.postLikes.PostLikesRequestDto;
-import com.example.devSns.exception.InvalidRequestException;
+import com.example.devSns.dto.member.MemberResponseDto;
 import com.example.devSns.exception.NotFoundException;
 import com.example.devSns.repository.CommentLikesRepository;
 import com.example.devSns.repository.CommentRepository;
 import com.example.devSns.repository.MemberRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,22 +34,28 @@ public class CommentLikesService extends LikesService<CommentLikes> {
     }
 
     @Override
-    protected Long saveLikes(CommentLikes likes) {
-        return commentLikesRepository.save(likes).getId();
+    protected void saveLikes(CommentLikes likes) {
+        commentLikesRepository.save(likes);
     }
 
     @Override
-    protected CommentLikes findLikes(Long targetId, Long memberId) {
+    protected Optional<CommentLikes> findLikes(Long targetId, Long memberId) {
         MemberAndComment mc = findMemberAndComment(targetId, memberId);
-
-        return commentLikesRepository.findByMemberAndComment(mc.member(), mc.comment())
-                .orElseThrow(()->new NotFoundException("Comment not liked"));
+        return commentLikesRepository.findByMemberAndComment(mc.member(), mc.comment());
     }
 
     @Override
     protected void deleteLikes(CommentLikes likes) {
         commentLikesRepository.delete(likes);
     }
+
+
+    @Override
+    public Slice<MemberResponseDto> findWhoLiked(Pageable pageable, Long targetId) {
+        Comment comment = commentRepository.findById(targetId).orElseThrow(()->new NotFoundException("Comment not found"));
+        return commentLikesRepository.findLikedUsersByComment(comment, pageable);
+    }
+
 
     private record MemberAndComment(Member member, Comment comment) {}
     private MemberAndComment findMemberAndComment(Long targetId, Long memberId) {

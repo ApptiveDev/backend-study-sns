@@ -4,10 +4,9 @@ import com.example.devSns.dto.GenericDataDto;
 import com.example.devSns.dto.likes.LikesRequestDto;
 import com.example.devSns.dto.post.PostCreateDto;
 import com.example.devSns.dto.post.PostResponseDto;
-//import com.example.devSns.repository.PostRepository;
-import com.example.devSns.dto.postLikes.PostLikesRequestDto;
 import com.example.devSns.service.PostLikesService;
 import com.example.devSns.service.PostService;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Pageable;
@@ -25,11 +24,9 @@ import java.net.URI;
 public class PostController {
 
     private final PostService postService;
-    private final PostLikesService postLikesService;
 
-    public PostController(PostService postService, PostLikesService postLikesService) {
+    public PostController(PostService postService) {
         this.postService = postService;
-        this.postLikesService = postLikesService;
     }
 
     @PostMapping
@@ -65,11 +62,14 @@ public class PostController {
                     sort = "id",
                     direction = Sort.Direction.DESC
             )
-            Pageable pageable
+            Pageable pageable,
+            @RequestParam @Nullable Long memberId
     ) {
-        Slice<PostResponseDto> posts = postService.findAsSlice(pageable);
+        Slice<PostResponseDto> posts = memberId == null ?
+                postService.findAsSlice(pageable) : postService.findByMemberAsSlice(pageable, memberId);
         return ResponseEntity.ok().body(posts);
     }
+
 
 
     @PatchMapping("/{id}/contents")

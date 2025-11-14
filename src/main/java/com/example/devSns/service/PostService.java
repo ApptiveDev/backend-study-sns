@@ -20,12 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
 
-    public PostService(PostRepository postRepository, CommentRepository commentRepository, MemberRepository memberRepository) {
+    public PostService(PostRepository postRepository, MemberRepository memberRepository) {
         this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
         this.memberRepository = memberRepository;
     }
 
@@ -38,7 +36,6 @@ public class PostService {
 
     public PostResponseDto findOne(Long id) {
         Post post = postRepository.findById(id).orElseThrow(()->new NotFoundException("post not found"));
-//        Long comments = commentRepository.countCommentsByPostId(id);
         return PostResponseDto.from(post);
     }
 
@@ -63,6 +60,8 @@ public class PostService {
         return postRepository.findPostSliceWithLikeCountAndCommentCount(pageable);
     }
 
-
+    public Slice<PostResponseDto> findByMemberAsSlice(Pageable pageable, Long memberId) {
+        return postRepository.findPostSliceByMemberIdWithLikeCountAndCommentCount(pageable, memberId);
+    }
 
 }

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public record CommentResponseDto(
     Long id,
-//    @JsonProperty("post_id") Long postId,
+    @JsonProperty("post_id") Long postId,
     String content,
     @JsonProperty("user_name") String userName,
     @JsonProperty("like_count") Long likeCount,
@@ -21,6 +21,7 @@ public record CommentResponseDto(
     public static CommentResponseDto from(Comment comment) {
         return new CommentResponseDto(
                 comment.getId(),
+                comment.getPost().getId(),
                 comment.getContent(),
                 comment.getMember().getNickname(),
                 comment.getCommentLikes().stream().count(),

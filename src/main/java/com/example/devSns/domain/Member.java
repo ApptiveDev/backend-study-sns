@@ -33,7 +33,9 @@ public class Member extends BaseTimeEntity {
     private Long version;
 
     public Member() {}
-    public Member(String nickname) {}
+    public Member(String nickname) {
+        this.nickname = nickname;
+    }
 
     public Long getId() {
         return id;

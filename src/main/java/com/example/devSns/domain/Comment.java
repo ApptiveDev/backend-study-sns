@@ -41,15 +41,19 @@ public class Comment extends BaseTimeEntity{
     private Long version;
 
     public Comment() {}
-    public Comment(String content, Post post, Member member) {}
-
-    public static Comment create(String content, Post post, Member member) {
-        Comment comment = new Comment();
-        comment.content = content;
-        comment.post = post;
-        comment.member = member;
-        return comment;
+    public Comment(String content, Post post, Member member) {
+        this.content = content;
+        this.post = post;
+        this.member = member;
     }
+
+//    public static Comment create(String content, Post post, Member member) {
+//        Comment comment = new Comment();
+//        comment.content = content;
+//        comment.post = post;
+//        comment.member = member;
+//        return comment;
+//    }
 
     public Long getId() {
         return id;

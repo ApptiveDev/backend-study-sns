@@ -25,6 +25,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("""
         SELECT new com.example.devSns.dto.comment.CommentResponseDto(
             c.id,
+            c.post.id,
             c.content,
             m.nickname,
             (select count(*) as likes from CommentLikes cl where c = cl.comment),
@@ -37,9 +38,22 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     """)
     Slice<CommentResponseDto> findCommentSliceByPostIdWithLikeCount(Pageable pageable, Long postId);
 
-//    @Modifying
-//    @Query("update Comment c set c.likeCount = c.likeCount + 1 where c.id = :id")
-//    void incrementLikeById(Long id);
+
+    @Query("""
+     SELECT new com.example.devSns.dto.comment.CommentResponseDto(
+            c.id,
+            c.post.id,
+            c.content,
+            m.nickname,
+            (select count(*) as likes from CommentLikes cl where c = cl.comment),
+            c.createdAt,
+            c.updatedAt
+        )
+        FROM Comment c
+        JOIN c.member m
+        Where m.id = :memberId
+    """)
+    Slice<CommentResponseDto> findCommentSliceByMemberIdWithLikeCount(Pageable pageable, Long memberId);
 
     Long countCommentsByPostId(Long postId);
 

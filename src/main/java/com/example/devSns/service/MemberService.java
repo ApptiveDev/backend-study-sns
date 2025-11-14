@@ -1,28 +1,22 @@
 package com.example.devSns.service;
 
-import com.example.devSns.domain.Follows;
 import com.example.devSns.domain.Member;
-import com.example.devSns.dto.GenericDataDto;
-import com.example.devSns.dto.follow.FollowCreateDto;
 import com.example.devSns.dto.member.MemberCreateDto;
 import com.example.devSns.dto.member.MemberResponseDto;
 import com.example.devSns.exception.NotFoundException;
-import com.example.devSns.repository.FollowsRepository;
 import com.example.devSns.repository.MemberRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
-    private final FollowsRepository followsRepository;
 
-    public MemberService(MemberRepository memberRepository, FollowsRepository followsRepository) {
+    public MemberService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
-        this.followsRepository = followsRepository;
     }
 
     @Transactional
@@ -37,10 +31,18 @@ public class MemberService {
         return new MemberResponseDto(member.getId(), member.getNickname());
     }
 
-    public List<MemberResponseDto> findByNickname(GenericDataDto<String> nicknameDto) {
-        List<Member> members = memberRepository.findByNickname(nicknameDto.data());
-
-        return members.stream().map(MemberResponseDto::from).toList();
+    public Slice<MemberResponseDto> findByNickname(Pageable pageable,String nickname) {
+        Slice<Member> members = memberRepository.findMembersByNickname(nickname, pageable);
+        return members.map(MemberResponseDto::from);
     }
+
+    public Slice<MemberResponseDto> findFollowers(Pageable pageable, Long memberId) {
+        return memberRepository.findFollowers(memberId, pageable);
+    }
+
+    public Slice<MemberResponseDto> findFollowing(Pageable pageable, Long memberId) {
+        return memberRepository.findFollowings(memberId, pageable);
+    }
+
 
 }

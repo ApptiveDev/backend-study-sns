@@ -35,5 +35,20 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     """)
     Slice<PostResponseDto> findPostSliceWithLikeCountAndCommentCount(Pageable pageable);
 
+    @Query("""
+    SELECT NEW com.example.devSns.dto.post.PostResponseDto(
+            p.id,
+            p.content,
+            m.nickname,
+            (select count(*) as likes from PostLikes pl where p = pl.post),
+            p.createdAt,
+            p.updatedAt,
+            (select count(*) as comments from Comment c where p = c.post)
+        )
+        FROM Post p
+        JOIN p.member m
+        WHERE m.id = :memberId
+    """)
+    Slice<PostResponseDto> findPostSliceByMemberIdWithLikeCountAndCommentCount(Pageable pageable, Long memberId);
 //    Slice<Post> findByOrderByIdDesc(Pageable pageable);
 }
