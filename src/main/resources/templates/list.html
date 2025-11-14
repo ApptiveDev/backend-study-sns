@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h2>게시판</h2>
+    <a href="/posts/new">새 글 쓰기</a>
+    <ul>
+        <li th:each="post : ${posts}">
+            <a th:href="@{|/posts/${post.id}|}" th:text="${post.title}"></a>
+            </br>
+            <small>
+                작성일:
+                <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                /
+                수정일:
+                <span th:text="${#temporals.format(post.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+            </small>
+        </li>
+    </ul>
+    <a href="/members">
+        <button type="button">멤버 목록 보기</button>
+    </a>
+</body>

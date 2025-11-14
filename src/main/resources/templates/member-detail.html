@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<h2 th:text="${member.username} + '님의 프로필'"></h2>
+<p>
+    이메일: <b th:text="${member.email}"></b><br/>
+    가입일: <span th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+</p>
+
+<hr/>
+
+<h3>작성한 게시글</h3>
+<div th:if="${#lists.isEmpty(posts)}">
+    <p>작성한 게시글이 없습니다.</p>
+</div>
+
+<ul th:if="${!#lists.isEmpty(posts)}">
+    <li th:each="p : ${posts}">
+        <a th:href="@{|/posts/${p.id}|}" th:text="${p.title}"></a>
+        (작성일: <span th:text="${#temporals.format(p.createdAt, 'yyyy-MM-dd HH:mm')}"></span>)
+    </li>
+</ul>
+
+<hr/>
+
+<h3>작성한 댓글</h3>
+<div th:if="${#lists.isEmpty(comments)}">
+    <p>작성한 댓글이 없습니다.</p>
+</div>
+
+<ul th:if="${!#lists.isEmpty(comments)}">
+    <li th:each="c : ${comments}">
+        <b th:text="${c.username}"></b> :
+        <span th:text="${c.content}"></span>
+        <small>(<span th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd HH:mm')}"></span>)</small>
+    </li>
+</ul>
+
+<hr/>
+
+<a href="/members">전체 멤버 목록</a>
+
+</body>
+</html>
