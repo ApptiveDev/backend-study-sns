@@ -42,7 +42,7 @@ class PostServiceTests {
     @DisplayName("게시글 생성 성공")
     void create_success() {
         // given
-        PostCreateDto createDto = new PostCreateDto("Test Content", "testUser");
+        PostCreateDto createDto = new PostCreateDto("Test Content", 1L);
         Post post = Post.create("Test Content", "testUser");
         post.setId(1L); // Mocking the ID set after save
 
