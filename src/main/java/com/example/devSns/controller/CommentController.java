@@ -1,0 +1,64 @@
+package com.example.devSns.controller;
+
+import com.example.devSns.dto.GenericDataDto;
+import com.example.devSns.dto.comment.CommentCreateDto;
+import com.example.devSns.dto.comment.CommentResponseDto;
+import com.example.devSns.service.CommentService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+
+@RestController
+@RequestMapping("/comments")
+public class CommentController {
+    private final CommentService commentService;
+
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
+
+
+    @PostMapping
+    public ResponseEntity<GenericDataDto<Long>> create(@RequestBody @Valid CommentCreateDto commentCreateDto) {
+        Long id = commentService.create(commentCreateDto);
+
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(id)
+                .toUri();
+
+        return ResponseEntity.created(uri).body(new GenericDataDto<>(id));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CommentResponseDto> getOne(@PathVariable @Positive Long id) {
+        CommentResponseDto comment = commentService.findOne(id);
+        return ResponseEntity.ok().body(comment);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable @Positive Long id) {
+        commentService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
+    @PostMapping("/{id}/likes")
+    public ResponseEntity<CommentResponseDto> like(@PathVariable @Positive Long id) {
+        commentService.like(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/contents")
+    public ResponseEntity<CommentResponseDto> contents(@PathVariable @Positive Long id,
+                                                       @RequestBody @Valid GenericDataDto<String> contentsDto) {
+        CommentResponseDto comment = commentService.updateContent(id, contentsDto);
+        return ResponseEntity.ok().body(comment);
+    }
+}
