@@ -9,48 +9,47 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/posts") // http://.../api/posts 로 시작하는 모든 요청을 이 컨트롤러가 처리
+@RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
+    // 1. 게시글 생성
 
-    // 1. 게시글 생성 (POST)
     @PostMapping
     public PostResponseDto createPost(@RequestBody PostRequestDto requestDto) {
         Post post = postService.createPost(requestDto);
         return new PostResponseDto(post);
     }
 
-    // 2. 모든 게시글 조회 (GET)
+    // 2. 모든 게시글 조회
     @GetMapping
     public List<PostResponseDto> getAllPosts() {
-        return postService.getAllPosts().stream()
-                .map(PostResponseDto::new)
-                .collect(Collectors.toList());
+        return postService.getAllPosts();
     }
 
-    // 3. 특정 게시글 조회 (GET)
+    // 3. 특정 게시글 조회
     @GetMapping("/{id}")
     public PostResponseDto getPostById(@PathVariable Long id) {
         Post post = postService.getPostById(id);
         return new PostResponseDto(post);
     }
 
-    // 4. 게시글 수정 (PUT)
+    // 4. 게시글 수정
     @PutMapping
     public PostResponseDto updatePost(@RequestBody PostRequestDto requestDto) {
+        // DTO에 memberId가 포함되어 서비스단에서 권한 확인
         Post updatedPost = postService.updatePost(requestDto);
         return new PostResponseDto(updatedPost);
     }
 
-    // 5. 게시글 삭제 (DELETE)
+    // 5. 게시글 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
-        return ResponseEntity.ok().build(); // 성공적으로 처리되었음을 응답 (body는 없음)
+    public ResponseEntity<Void> deletePost(@PathVariable Long id, @RequestParam Long memberId) {
+        // 삭제는 memberId를 파라미터로 받아 권한 확인
+        postService.deletePost(id, memberId);
+        return ResponseEntity.ok().build();
     }
 }
