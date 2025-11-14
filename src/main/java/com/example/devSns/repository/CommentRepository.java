@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    // 특정 게시글의 모든 최상위 댓글을 조회 (대댓글이 아닌 댓글)
     List<Comment> findByPostIdAndParentIsNull(Long postId);
+
+    // 특정 회원이 작성한 모든 댓글 조회 (프로필용)
+    List<Comment> findByMemberId(Long memberId);
 }

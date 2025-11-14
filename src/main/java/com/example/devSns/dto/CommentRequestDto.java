@@ -8,5 +8,6 @@ import lombok.Setter;
 public class CommentRequestDto {
     private String content;
     private Long postId;
-    private Long parentId; // 대댓글인 경우 부모 댓글의 ID, 아니면 null
+    private Long parentId;
+    private Long memberId; // 작성자 ID 추가
 }
