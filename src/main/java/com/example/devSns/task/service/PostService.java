@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +29,7 @@ public class PostService {
     public List<PostResponseDto> findAllPosts(){
         return postRepository.findAll().stream()
                 .map(PostResponseDto::new) // Post 엔티티를 PostResponseDto로 변환
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // 3. 아이디로 조회
@@ -43,8 +42,7 @@ public class PostService {
     // 4. 게시물 수정
     @Transactional
     public PostResponseDto updatePost(Long id, PostUpdateRequestDto requestDto){
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + id));
+        Post post = getPostById(id);
 
         post.update(requestDto.postContent());
 
@@ -58,5 +56,10 @@ public class PostService {
             throw new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + id);
         }
         postRepository.deleteById(id);
+    }
+
+    private Post getPostById(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + id));
     }
 }

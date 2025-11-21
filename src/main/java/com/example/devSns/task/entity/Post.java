@@ -3,31 +3,39 @@ package com.example.devSns.task.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 이 생성자는 JPA를 위해 존재, 외부에서 객체 생성을 막기 위해 protected로 설정.
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본키 값을 데이터베이스가 알아서 증가시키도록 맡김
     private Long id;
 
-    private String username;
+    @ManyToOne(fetch = FetchType.LAZY) // 필요할 때만 Member 정보를 가져오도록 함.(조금 더 공부)
+    @JoinColumn(nullable = false)
+    private Member member;
 
     @Column(length = 1000, nullable = false)
     private String postContent;
 
     private int likes;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true) // cascade = CascadeType.REMOVE 와 orphanRemoval의 차이??
+    private final List<Comment> comments = new ArrayList<>();
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     // 생성자를 통해 필수 필드 초기화
     // Lombok에서 제공하는 객체를 안전하고 유연하게 생성할 수 있도록 도와주는 디자인 패턴
     @Builder
-    public Post(String username, String postContent) {
-        this.username = username;
+    public Post(Member member, String postContent) {
+        this.member = member;
         this.postContent = postContent;
         this.likes = 0; // 초기 좋아요 0
         this.createdAt = LocalDateTime.now();
@@ -39,5 +47,15 @@ public class Post {
     public void update(String postContent) {
         this.postContent = postContent;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    // 좋아요 +1
+    public void addLike() {
+        this.likes++;
+    }
+
+    // 좋아요 -1
+    public void removeLike() {
+        if(likes > 0)  this.likes--;
     }
 }
