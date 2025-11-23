@@ -1,0 +1,48 @@
+package com.example.devSns.service;
+
+import com.example.devSns.domain.Member;
+import com.example.devSns.dto.member.MemberCreateDto;
+import com.example.devSns.dto.member.MemberResponseDto;
+import com.example.devSns.exception.NotFoundException;
+import com.example.devSns.repository.MemberRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional(readOnly = true)
+public class MemberService {
+    private final MemberRepository memberRepository;
+
+    public MemberService(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
+    }
+
+    @Transactional
+    public Long create(MemberCreateDto memberCreateDto) {
+        Member member = new Member(memberCreateDto.nickname());
+        return memberRepository.save(member).getId();
+    }
+
+    public MemberResponseDto getOne(Long id) {
+        Member member = memberRepository.findById(id).orElseThrow(() -> new NotFoundException("Member not found"));
+
+        return new MemberResponseDto(member.getId(), member.getNickname());
+    }
+
+    public Slice<MemberResponseDto> findByNickname(Pageable pageable,String nickname) {
+        Slice<Member> members = memberRepository.findMembersByNickname(nickname, pageable);
+        return members.map(MemberResponseDto::from);
+    }
+
+    public Slice<MemberResponseDto> findFollowers(Pageable pageable, Long memberId) {
+        return memberRepository.findFollowers(memberId, pageable);
+    }
+
+    public Slice<MemberResponseDto> findFollowing(Pageable pageable, Long memberId) {
+        return memberRepository.findFollowings(memberId, pageable);
+    }
+
+
+}

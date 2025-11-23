@@ -3,9 +3,14 @@ package com.example.devSns.controller;
 import com.example.devSns.dto.GenericDataDto;
 import com.example.devSns.dto.comment.CommentCreateDto;
 import com.example.devSns.dto.comment.CommentResponseDto;
+import com.example.devSns.dto.post.PostResponseDto;
 import com.example.devSns.service.CommentService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -47,18 +52,24 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-
-
-    @PostMapping("/{id}/likes")
-    public ResponseEntity<CommentResponseDto> like(@PathVariable @Positive Long id) {
-        commentService.like(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @PatchMapping("/{id}/contents")
     public ResponseEntity<CommentResponseDto> contents(@PathVariable @Positive Long id,
                                                        @RequestBody @Valid GenericDataDto<String> contentsDto) {
         CommentResponseDto comment = commentService.updateContent(id, contentsDto);
         return ResponseEntity.ok().body(comment);
+    }
+
+    @GetMapping
+    public ResponseEntity<Slice<CommentResponseDto>> findByMemberIdAsPaginated(
+            @PageableDefault(
+                    size = 15,
+                    sort = "id",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable,
+            @RequestParam @Positive Long memberId
+    ) {
+        Slice<CommentResponseDto> comments = commentService.findByMemberAsSlice(pageable, memberId);
+        return ResponseEntity.ok().body(comments);
     }
 }

@@ -1,19 +1,23 @@
 package com.example.devSns.controller;
 
 import com.example.devSns.dto.GenericDataDto;
-import com.example.devSns.dto.PaginatedDto;
+import com.example.devSns.dto.likes.LikesRequestDto;
 import com.example.devSns.dto.post.PostCreateDto;
 import com.example.devSns.dto.post.PostResponseDto;
-//import com.example.devSns.repository.PostRepository;
+import com.example.devSns.service.PostLikesService;
 import com.example.devSns.service.PostService;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
@@ -52,20 +56,21 @@ public class PostController {
 
 
     @GetMapping
-    public ResponseEntity<PaginatedDto<List<PostResponseDto>>> getAsPaginated(
-            @RequestParam(required = false)
-//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            Long before
+    public ResponseEntity<Slice<PostResponseDto>> getAsPaginated(
+            @PageableDefault(
+                    size = 15,
+                    sort = "id",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable,
+            @RequestParam @Nullable Long memberId
     ) {
-        PaginatedDto<List<PostResponseDto>> posts = postService.findAsPaginated(new GenericDataDto<>(before));
+        Slice<PostResponseDto> posts = memberId == null ?
+                postService.findAsSlice(pageable) : postService.findByMemberAsSlice(pageable, memberId);
         return ResponseEntity.ok().body(posts);
     }
 
-    @PostMapping("/{id}/likes")
-    public ResponseEntity<PostResponseDto> like(@PathVariable @Positive Long id) {
-        postService.like(id);
-        return ResponseEntity.noContent().build();
-    }
+
 
     @PatchMapping("/{id}/contents")
     public ResponseEntity<PostResponseDto> contents(

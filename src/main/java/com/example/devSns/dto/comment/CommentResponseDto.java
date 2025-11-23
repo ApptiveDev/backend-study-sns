@@ -23,8 +23,8 @@ public record CommentResponseDto(
                 comment.getId(),
                 comment.getPost().getId(),
                 comment.getContent(),
-                comment.getUserName(),
-                comment.getLikeCount(),
+                comment.getMember().getNickname(),
+                comment.getCommentLikes().stream().count(),
                 comment.getCreatedAt(),
                 comment.getUpdatedAt()
         );

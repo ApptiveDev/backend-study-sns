@@ -7,6 +7,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record PostCreateDto(
         @NotNull @NotEmpty String content,
-        @NotNull @NotBlank @JsonProperty("user_name") String userName
+        @NotNull @JsonProperty("member_id") Long memberId
 ) {
 }

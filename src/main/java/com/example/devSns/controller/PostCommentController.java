@@ -5,6 +5,10 @@ import com.example.devSns.dto.PaginatedDto;
 import com.example.devSns.dto.comment.CommentResponseDto;
 import com.example.devSns.service.CommentService;
 import jakarta.validation.constraints.Positive;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,14 +29,17 @@ public class PostCommentController {
     }
 
     @GetMapping("/posts/{postId}/comments")
-    public ResponseEntity<PaginatedDto<List<CommentResponseDto>>> getAsPaginated(
-            @RequestParam(required = false)
-//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            Long before,
+    public ResponseEntity<Slice<CommentResponseDto>> getAsPaginated(
+            @PageableDefault(
+                    size = 15,
+                    sort = "id",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable,
             @PathVariable @Positive Long postId
     ) {
-        PaginatedDto<List<CommentResponseDto>> posts = commentService.findAsPaginated(new GenericDataDto<>(before), postId);
-        return ResponseEntity.ok().body(posts);
+        Slice<CommentResponseDto> comments = commentService.findAsSlice(pageable, postId);
+        return ResponseEntity.ok().body(comments);
     }
 
 }

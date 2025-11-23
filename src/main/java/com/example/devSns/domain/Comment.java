@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="comments")
@@ -22,28 +23,37 @@ public class Comment extends BaseTimeEntity{
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "like_count")
-    private Long likeCount = 0L;
+//    @Column(name = "like_count")
+//    private Long likeCount = 0L;
 
-    @Column(name = "user_name", nullable = false)
-    private String userName;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
-
     private Post post;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "comment", cascade = CascadeType.ALL)
+    private List<CommentLikes> commentLikes;
 
     @Version
     private Long version;
 
-    public static Comment create(String content, Post post, String userName) {
-        Comment comment = new Comment();
-        comment.content = content;
-        comment.post = post;
-        comment.userName = userName;
-        return comment;
+    public Comment() {}
+    public Comment(String content, Post post, Member member) {
+        this.content = content;
+        this.post = post;
+        this.member = member;
     }
+
+//    public static Comment create(String content, Post post, Member member) {
+//        Comment comment = new Comment();
+//        comment.content = content;
+//        comment.post = post;
+//        comment.member = member;
+//        return comment;
+//    }
 
     public Long getId() {
         return id;
@@ -65,22 +75,13 @@ public class Comment extends BaseTimeEntity{
         this.content = content;
     }
 
-    public Long getLikeCount() {
-        return likeCount;
+    public List<CommentLikes> getCommentLikes() {
+        return commentLikes;
     }
 
-    public void setLikeCount(Long likeCount) {
-        this.likeCount = likeCount;
+    public Member getMember() {
+        return member;
     }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
 
 
 }

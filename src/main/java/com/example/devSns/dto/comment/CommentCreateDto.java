@@ -6,8 +6,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public record CommentCreateDto(
-        @NotNull Long post_id,
-        @NotNull @NotEmpty String content,
-        @NotNull @NotBlank @JsonProperty("user_name") String userName
+        @NotNull @JsonProperty("post_id") Long postId,
+        @NotNull @JsonProperty("member_id") Long memberId,
+        @NotEmpty String content
         ) {
 }

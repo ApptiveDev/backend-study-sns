@@ -22,15 +22,17 @@ public record PostResponseDto(
         Long comments
 ) {
 
-    public static PostResponseDto from(Post post, Long comments) {
+
+
+    public static PostResponseDto from(Post post) {
         return new PostResponseDto(
                 post.getId(),
                 post.getContent(),
-                post.getUserName(),
-                post.getLikeCount(),
+                post.getMember().getNickname(),
+                post.getPostLikes().stream().count(),
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
-                comments == null ? 0 : comments
+                post.getComments().stream().count()
         );
     }
 }
