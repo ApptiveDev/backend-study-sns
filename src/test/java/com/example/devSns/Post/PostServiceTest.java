@@ -3,7 +3,6 @@ package com.example.devSns.Post;
 import com.example.devSns.Comment.Comment;
 import com.example.devSns.Comment.CommentRepository;
 import com.example.devSns.Heart.HeartRepository;
-import com.example.devSns.Heart.LikeStatus;
 import com.example.devSns.Member.Member;
 import com.example.devSns.Member.MemberRepository;
 import com.example.devSns.Post.Dto.AddPostRequestDto;
@@ -162,15 +161,15 @@ class PostServiceTest {
         List<Post> posts = List.of(post1, post2);
 
         when(postRepository.findAll()).thenReturn(posts);
-        when(heartRepository.countByPostIdAndLike(1L, LikeStatus.LIKE)).thenReturn(5L);
-        when(heartRepository.countByPostIdAndLike(2L, LikeStatus.LIKE)).thenReturn(3L);
+        when(heartRepository.countByPostIdAndLiked(1L, true)).thenReturn(5L);
+        when(heartRepository.countByPostIdAndLiked(2L, true)).thenReturn(3L);
 
         // when
         postService.countLikes();
 
         // then
         verify(postRepository).findAll();
-        verify(heartRepository, times(2)).countByPostIdAndLike(anyLong(), eq(LikeStatus.LIKE));
+        verify(heartRepository, times(2)).countByPostIdAndLiked(anyLong(), eq(true));
 
         assertEquals(5L, post1.getLikeCount());
         assertEquals(3L, post2.getLikeCount());

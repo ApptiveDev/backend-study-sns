@@ -77,7 +77,7 @@ public class MemberService {
             Heart heart = new Heart(
                     post,
                     member,
-                    LikeStatus.NONE
+                    false
 
             );
             heart.toggleLike();

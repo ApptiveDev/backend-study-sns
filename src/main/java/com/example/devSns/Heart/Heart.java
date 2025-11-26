@@ -29,21 +29,15 @@ public class Heart {
     // 리포지터리에 메소드로 계산하면 되겠지?
 
     @Column(name ="like_status",  nullable = false)
-    @Enumerated(EnumType.STRING)
-    private LikeStatus like;
+    private boolean liked;
 
-    public Heart(Post post, Member member, LikeStatus heart) {
+    public Heart(Post post, Member member, boolean like) {
         this.post = post;
         this.member = member;
-        this.like = heart;
+        this.liked = like;
     }
 
     public void toggleLike() {
-
-        if (like == LikeStatus.LIKE) {
-            like = LikeStatus.NONE;
-        }else if(like == LikeStatus.NONE){
-            like = LikeStatus.LIKE;
-        }
+        this.liked = !this.liked;
     }
 }
