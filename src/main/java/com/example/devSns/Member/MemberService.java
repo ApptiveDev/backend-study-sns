@@ -2,6 +2,7 @@ package com.example.devSns.Member;
 
 import com.example.devSns.Heart.Heart;
 import com.example.devSns.Heart.HeartRepository;
+import com.example.devSns.Jwt.JwtUtil;
 import com.example.devSns.Member.Dto.GetMemberPostAndCommentResponseDto;
 import com.example.devSns.Member.Dto.GetMemberResponseDto;
 import com.example.devSns.Member.Dto.SignMemberRequestDto;
@@ -28,7 +29,7 @@ public class MemberService {
     private final HeartRepository heartRepository;
     private final PostRepository postRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-
+    private final JwtUtil jwtUtil;
 
 
     // (선택) 팔로우 기능 구현 (닉네임으로 친구 추가 보내기)
@@ -101,6 +102,19 @@ public class MemberService {
             heart.toggleLike();
         }
 
+    }
+
+    public String login(String email, String rawPassword) {
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
+
+        if (!passwordEncoder.matches(rawPassword, member.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // JWT 발급
+        return jwtUtil.createToken(member.getId());
     }
 
 
