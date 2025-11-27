@@ -12,11 +12,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class PostController {
 
     private final PostService postService;
 
-    @PostMapping("members/{member_id}/posts")
+    @PostMapping("/members/{member_id}/posts")
     public ResponseEntity<Void> createPost(
             @Valid
             @RequestBody AddPostRequestDto Dto,
