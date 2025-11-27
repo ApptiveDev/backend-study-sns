@@ -29,8 +29,7 @@ public class PostService {
     public void createPost(AddPostRequestDto Dto, Long memberId) {
         Post post = new Post(
                 Dto.content(),
-                Dto.username(),
-                0L
+                Dto.username()
         );
         Member member =  memberRepository.findById(memberId)
                 .orElseThrow(()->new EntityNotFoundException("Member not found"));
