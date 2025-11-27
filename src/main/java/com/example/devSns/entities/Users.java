@@ -1,5 +1,6 @@
 package com.example.devSns.entities;
 
+import com.example.devSns.authorities.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -31,4 +32,8 @@ public class Users {
     private Integer age;
 
     private LocalDate birthday;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.ROLE_USER;
 }
