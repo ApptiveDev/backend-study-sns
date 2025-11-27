@@ -5,7 +5,6 @@ import com.example.devSns.Post.Dto.GetPostResponseDto;
 import com.example.devSns.Post.Dto.UpdatePostRequestDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,18 +12,19 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class PostController {
 
     private final PostService postService;
 
-    @PostMapping("members/{member_id}/posts")
+    @PostMapping("/members/{member_id}/posts")
     public ResponseEntity<Void> createPost(
             @Valid
             @RequestBody AddPostRequestDto Dto,
            @PathVariable("member_id") Long member_id) {
 
         postService.createPost(Dto,member_id);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(201).build();
     }
 
     @GetMapping("/posts")

@@ -48,10 +48,10 @@ public class Post {
         this.userName = Dto.username();
         this.updatedAt = LocalDateTime.now();
     }
-    public Post(String content, String userName, Long likeCount) {
+    public Post(String content, String userName) {
         this.content = content;
         this.userName = userName;
-        this.likeCount = likeCount;
+        this.likeCount = 0L;
     }
 
     @PrePersist

@@ -2,7 +2,6 @@ package com.example.devSns.Post;
 
 import com.example.devSns.Comment.CommentRepository;
 import com.example.devSns.Heart.HeartRepository;
-import com.example.devSns.Heart.LikeStatus;
 import com.example.devSns.Member.Member;
 import com.example.devSns.Member.MemberRepository;
 import com.example.devSns.Post.Dto.AddPostRequestDto;
@@ -30,8 +29,7 @@ public class PostService {
     public void createPost(AddPostRequestDto Dto, Long memberId) {
         Post post = new Post(
                 Dto.content(),
-                Dto.username(),
-                0L
+                Dto.username()
         );
         Member member =  memberRepository.findById(memberId)
                 .orElseThrow(()->new EntityNotFoundException("Member not found"));
@@ -75,7 +73,7 @@ public class PostService {
         List<Post> posts = postRepository.findAll();
 
         for (Post post : posts) {
-            long likeCount = heartRepository.countByPostIdAndLike(post.getId(), LikeStatus.LIKE);
+            long likeCount = heartRepository.countByPostIdAndLiked(post.getId(), true);
             post.updateLikeCount((Long) likeCount);
         }
     }

@@ -16,11 +16,11 @@ class HeartEntityTest {
         Post post = new Post("content", "writer", 0L);
         Member member = new Member("nick", "email", "pwd", Gender.MALE, 28);
 
-        Heart heart = new Heart(post, member, LikeStatus.NONE);
+        Heart heart = new Heart(post, member, false);
 
         heart.toggleLike();
 
-        assertEquals(LikeStatus.LIKE, heart.getLike());
+        assertEquals(true, heart.isLiked());
     }
 
     @Test
@@ -29,11 +29,11 @@ class HeartEntityTest {
         Post post = new Post("content", "writer", 0L);
         Member member = new Member("nick", "email", "pwd", Gender.MALE, 28);
 
-        Heart heart = new Heart(post, member, LikeStatus.LIKE);
+        Heart heart = new Heart(post, member, true);
 
         heart.toggleLike();
 
-        assertEquals(LikeStatus.NONE, heart.getLike());
+        assertEquals(false, heart.isLiked());
     }
 }
 

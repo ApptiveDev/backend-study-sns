@@ -146,7 +146,7 @@ class MemberServiceTest {
     void convertLikeStatus_existingHeart() {
         Post post = new Post("content", "writer", 0L);
         Member member = new Member("nickname", "email", "password", Gender.FEMALE, 22);
-        Heart heart = new Heart(post, member, LikeStatus.NONE);
+        Heart heart = new Heart(post, member, false);
 
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
         when(memberRepository.findById(1L)).thenReturn(Optional.of(member));
@@ -155,7 +155,7 @@ class MemberServiceTest {
 
         memberService.convertLikeStatus(1L, 1L);
 
-        assertEquals(LikeStatus.LIKE, heart.getLike()); // 토글 확인
+        assertEquals(true, heart.isLiked()); // 토글 확인
         verify(heartRepository).save(heart);
     }
 
