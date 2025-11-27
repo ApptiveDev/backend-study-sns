@@ -81,14 +81,12 @@ public class MemberService {
 
             );
             heart.toggleLike();
-            heartRepository.save(heart);
         }
         else{
             Heart heart = heartRepository.findByPostIdAndMemberId(postId, memberId)
                     .orElseThrow(() -> new EntityNotFoundException("게시글 없음"));
 
             heart.toggleLike();
-            heartRepository.save(heart);
         }
 
     }
