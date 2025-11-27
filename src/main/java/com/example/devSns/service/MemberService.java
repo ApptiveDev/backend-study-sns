@@ -39,7 +39,7 @@ public class MemberService {
         // TODO: 패스워드 암호화
         Member member = new Member(requestDto.getUsername(), requestDto.getPassword(), requestDto.getNickname());
         Member savedMember = memberRepository.save(member);
-        return new MemberResponseDto(savedMember);
+        return MemberResponseDto.of(savedMember);
     }
 
     // 회원 ID로 조회 (내부 로직용)
@@ -53,7 +53,7 @@ public class MemberService {
     public MemberResponseDto searchByNickname(String nickname) {
         Member member = memberRepository.findByNickname(nickname)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-        return new MemberResponseDto(member);
+        return MemberResponseDto.of(member);
     }
 
     // 회원 프로필 조회 (작성한 글, 댓글, 좋아요한 글)

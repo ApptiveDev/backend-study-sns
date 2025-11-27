@@ -24,6 +24,7 @@ public class PostService {
     public Post createPost(PostRequestDto requestDto) {
         Member member = memberService.getMemberById(requestDto.getMemberId());
         Post post = new Post(requestDto.getTitle(), requestDto.getContent(), member);
+        return postRepository.save(post);
     }
 
     // 모든 게시글 조회

@@ -1,16 +1,21 @@
 package com.example.devSns.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor; 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "members") // 'user'는 H2 DB 등에서 예약어일 수 있으므로 'members' 사용
+
+@AllArgsConstructor // Builder 패턴 사용 시 필요
+@Builder            // ★ 클래스 레벨에 추가하여 builder() 메서드 자동 생성 ★
+@Table(name = "members")
+
 public class Member {
 
     @Id
@@ -21,19 +26,25 @@ public class Member {
     private String username; // 로그인 ID
 
     @Column(nullable = false)
-    private String password; // 실제로는 해싱(Hashing) 필요
+
+    private String password;
 
     @Column(nullable = false, unique = true)
-    private String nickname; // 사용자가 표시할 이름
+    private String nickname;
 
-    // Member가 삭제되면, 관련 Post도 모두 삭제 (Cascade)
+    @Enumerated(EnumType.STRING)
+    private Authority authority; // 권한
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default // Builder 사용 시 초기화 값을 유지하기 위해 필요
     private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
     private List<PostLike> likes = new ArrayList<>();
 
     public Member(String username, String password, String nickname) {

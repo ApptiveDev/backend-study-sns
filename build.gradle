@@ -1,6 +1,6 @@
 plugins {
 	id "java"
-	id "org.springframework.boot" version "3.5.6"
+	id "org.springframework.boot" version "3.5.6" // 사용자 버전 유지
 	id "io.spring.dependency-management" version "1.1.7"
 }
 
@@ -19,19 +19,26 @@ repositories {
 }
 
 dependencies {
-	// 기본 웹 라이브러리
+	// 1. 기본 웹 라이브러리
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	// 데이터베이스 연동(JPA) 라이브러리
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	// 테스트용 H2 인메모리 데이터베이스
-	runtimeOnly 'com.h2database:h2'
-	// Lombok 라이브러리 (코드 자동 생성)
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	// --- ▲▲▲▲▲ 여기까지 추가 ▲▲▲▲▲ ---
+	// 2. 데이터베이스 연동(JPA) 라이브러리
 
-	// 기본 테스트 라이브러리
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// 3. 보안 및 JWT 관련 라이브러리 (추가됨)
+	implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security 코어
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'      // JWT 인터페이스
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'        // JWT 구현체
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'     // JSON 처리를 위한 Jackson 연동
+	testImplementation 'org.springframework.security:spring-security-test' // 보안 테스트용
+
+	// 4. 유틸리티 및 DB 드라이버
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.h2database:h2'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// 5. 테스트 라이브러리
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
