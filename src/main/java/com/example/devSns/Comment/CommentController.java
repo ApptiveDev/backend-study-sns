@@ -2,7 +2,6 @@ package com.example.devSns.Comment;
 
 import com.example.devSns.Comment.Dto.CreateCommentDto;
 import com.example.devSns.Comment.Dto.UpdateCommentDto;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
