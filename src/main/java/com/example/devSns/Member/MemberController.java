@@ -22,7 +22,7 @@ public class MemberController {
             @Valid
             @RequestBody SignMemberRequestDto dto) {
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(memberService.createMember(dto));
+        return ResponseEntity.status(201).body(memberService.createMember(dto));
     }
 
     // 특정 멤버 검색하기
@@ -30,7 +30,7 @@ public class MemberController {
     public ResponseEntity<GetMemberResponseDto> getMember(
             @PathVariable(name ="member_id") Long memberId
     ) {
-        return ResponseEntity.status(200).body(memberService.getMemberById(memberId));
+        return ResponseEntity.ok().body(memberService.getMemberById(memberId));
     }
 
     // like_status toggle
@@ -52,7 +52,7 @@ public class MemberController {
     public ResponseEntity<GetMemberPostAndCommentResponseDto> getMemberPostAndComment(
             @PathVariable(name = "member_id") Long memberId
     ){
-        return ResponseEntity.status(200).body(memberService.getMemberPostAndComment(memberId));
+        return ResponseEntity.ok().body(memberService.getMemberPostAndComment(memberId));
     }
 
 }

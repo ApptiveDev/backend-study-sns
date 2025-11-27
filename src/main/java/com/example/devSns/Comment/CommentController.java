@@ -30,7 +30,7 @@ public class CommentController {
             commentService.createComment(post_id, dto);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }catch (EntityNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
 
 
@@ -47,13 +47,13 @@ public class CommentController {
             commentService.createReplyComment(post_id, comment_id, dto);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }catch (EntityNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("posts/{post_id}/comments")
     public ResponseEntity<List<Comment>> getComments(@PathVariable("post_id") Long post_id) {
-        return ResponseEntity.status(HttpStatus.OK).body(commentService.getAllComments(post_id));
+        return ResponseEntity.ok().body(commentService.getAllComments(post_id));
 
     }
     @GetMapping("posts/{post_id}/comments/{comment_id}")
@@ -61,10 +61,10 @@ public class CommentController {
             @PathVariable("post_id") Long post_id,
             @PathVariable("comment_id") Long comment_id) {
         try{
-            return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentById(post_id, comment_id));
+            return ResponseEntity.ok(commentService.getCommentById(post_id, comment_id));
 
         }catch (EntityNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -75,9 +75,9 @@ public class CommentController {
             @Valid
             @RequestBody UpdateCommentDto dto) {
             try{
-                return ResponseEntity.status(HttpStatus.OK).body(commentService.updateComment(comment_id, dto));
+                return ResponseEntity.ok().body(commentService.updateComment(comment_id, dto));
             }catch (EntityNotFoundException e){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                return ResponseEntity.notFound().build();
             }
 
 
@@ -86,10 +86,10 @@ public class CommentController {
     public ResponseEntity<?> deleteComment(@PathVariable("comment_id") Long comment_id) {
         try{
             commentService.deleteCommentById(comment_id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            return ResponseEntity.noContent().build();
         }
         catch (EntityNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
     }
 

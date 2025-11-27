@@ -24,7 +24,7 @@ public class PostController {
            @PathVariable("member_id") Long member_id) {
 
         postService.createPost(Dto,member_id);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(201).build();
     }
 
     @GetMapping("/posts")
