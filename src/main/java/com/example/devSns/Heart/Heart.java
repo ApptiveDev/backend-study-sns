@@ -11,6 +11,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(
+        name = "heart",
+        indexes = {
+                @Index(name ="idx_heart_post_liked", columnList = "post_id , like_status")
+        }
+)
 public class Heart {
 
     @Id
