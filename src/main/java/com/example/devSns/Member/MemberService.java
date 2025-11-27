@@ -2,7 +2,6 @@ package com.example.devSns.Member;
 
 import com.example.devSns.Heart.Heart;
 import com.example.devSns.Heart.HeartRepository;
-import com.example.devSns.Heart.LikeStatus;
 import com.example.devSns.Member.Dto.GetMemberPostAndCommentResponseDto;
 import com.example.devSns.Member.Dto.GetMemberResponseDto;
 import com.example.devSns.Member.Dto.SignMemberRequestDto;
@@ -12,6 +11,7 @@ import com.example.devSns.Post.Post;
 import com.example.devSns.Post.PostRepository;
 import com.example.devSns.Post.PostService;
 import com.example.devSns.global.EntityNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +27,8 @@ public class MemberService {
     private final PostService postService;
     private final HeartRepository heartRepository;
     private final PostRepository postRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+
 
 
     // (선택) 팔로우 기능 구현 (닉네임으로 친구 추가 보내기)
@@ -34,7 +36,17 @@ public class MemberService {
     // 멤버 객체 생성 (회원가입_느낌으로다가)
     @Transactional
     public GetMemberResponseDto createMember(SignMemberRequestDto dto) {
-        Member saved = memberRepository.save(dto.toEntity());
+        String encryptedPw = passwordEncoder.encode(dto.password());
+
+        Member member = new Member(
+                dto.nickname(),
+                dto.email(),
+                encryptedPw,
+                dto.gender(),
+                dto.age()
+        );
+
+        Member saved = memberRepository.save(member);
         return new GetMemberResponseDto(saved);
     }
 
