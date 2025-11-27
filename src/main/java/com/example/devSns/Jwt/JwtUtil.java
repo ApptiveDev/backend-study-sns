@@ -2,6 +2,7 @@ package com.example.devSns.Jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -9,9 +10,13 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String secret = "mySecretKeyForJwtToken"; // 실제 프로젝트에서는 환경변수로 관리
+
+    private final String secret;// 실제 프로젝트에서는 환경변수로 관리
     private final long EXPIRATION = 1000L * 60 * 60; // 1시간
 
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        this.secret = secret;
+    }
     public String createToken(Long memberId) {
         Date now = new Date();
         Date expireTime = new Date(now.getTime() + EXPIRATION);
