@@ -32,4 +32,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 new ResponseEntity<>("접근 권한 없음", HttpStatus.FORBIDDEN);
         return response;
     }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleLoginErrorException(AuthenticationException e) {
+        ResponseEntity<String> response =
+                new ResponseEntity<>("잘못된 아이디 또는 비밀번호입니다.", HttpStatus.UNAUTHORIZED);
+        return response;
+    }
 }

@@ -20,9 +20,14 @@ public class Users {
     private long id;
 
     @NotNull
-    private String username;
+    private String loginID;
 
     @NotNull
+    private String password;
+
+    @NotNull
+    private String username;
+
     private Integer age;
 
     private LocalDate birthday;

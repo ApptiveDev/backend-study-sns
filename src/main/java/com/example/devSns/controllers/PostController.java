@@ -27,8 +27,8 @@ public class PostController {
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
-    @GetMapping("/show/{content}")
-    public ResponseEntity<List<PostResponse>> showPost(@PathVariable String content) {
+    @GetMapping("/search/{content}")
+    public ResponseEntity<List<PostResponse>> searchPost(@PathVariable String content) {
         List<PostResponse> post = postService.findByContent(content);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
