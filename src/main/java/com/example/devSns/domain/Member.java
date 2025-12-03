@@ -2,6 +2,7 @@ package com.example.devSns.domain;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -11,6 +12,12 @@ public class Member extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name="email", nullable = false, unique = true)
+    private String email;
+    
+    @Column(name="password", nullable = false)
+    private String password;
+    
     @Column(name = "nickname", nullable = false, unique = true)
     private String nickname;
 
@@ -29,12 +36,20 @@ public class Member extends BaseTimeEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL)
     private List<PostLikes> postLikes;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL)
+    private List<CommentLikes> commentLikes;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RefreshTokens> refreshTokens = new ArrayList<>();
+
     @Version
     private Long version;
 
     public Member() {}
-    public Member(String nickname) {
+    public Member(String nickname, String email, String passwordHash) {
         this.nickname = nickname;
+        this.email = email;
+        this.password = passwordHash;
     }
 
     public Long getId() {
@@ -43,6 +58,18 @@ public class Member extends BaseTimeEntity {
 
     public String getNickname() {
         return nickname;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+    
+    public String getPassword() {
+        return password;
+    }
+
+    public void addRefreshToken(RefreshTokens refreshToken) {
+        refreshTokens.add(refreshToken);
     }
 
 }

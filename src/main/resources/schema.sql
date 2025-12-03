@@ -4,6 +4,7 @@ drop table if exists comments cascade;
 drop table if exists posts_likes cascade;
 drop table if exists posts cascade;
 drop table if exists member_follows cascade;
+drop table if exists refresh_tokens cascade ;
 drop table if exists members cascade;
 
 
@@ -11,11 +12,25 @@ drop table if exists members cascade;
 create table if not exists members
 (
     id         BIGINT auto_increment primary key,
-    nickname   varchar(255) not null unique,
+    email      varchar(255) not null unique,
+    password   varchar(255) not null,
+    nickname   varchar(255) not null,
     created_at TIMESTAMP not null,
     updated_at TIMESTAMP  not null,
     version BIGINT default 0
+
 );
+create index members_nickname_index on members(nickname);
+create index members_email_index on members(email);
+
+create table if not exists refresh_tokens(
+    id BINARY(32) primary key,
+    member_id BIGINT,
+    valid_until DATETIME not null,
+    valid BOOL not null default true,
+    foreign key (member_id) references members(id) on delete cascade
+);
+
 
 create table if not exists member_follows
 (
@@ -25,8 +40,11 @@ create table if not exists member_follows
     created_at TIMESTAMP  not null,
     updated_at TIMESTAMP  not null ,
     foreign key (follower_id) references members (id) on delete cascade,
-    foreign key (following_id) references members (id) on delete cascade
+    foreign key (following_id) references members (id) on delete cascade,
+    constraint u_follower_following unique (follower_id, following_id)
 );
+
+create index follower_following on member_follows (follower_id, following_id);
 
 
 create table if not exists posts

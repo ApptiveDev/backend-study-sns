@@ -1,246 +1,324 @@
 package com.example.devSns.service;
 
+import com.example.devSns.domain.Member;
 import com.example.devSns.domain.Post;
 import com.example.devSns.dto.GenericDataDto;
-import com.example.devSns.dto.PaginatedDto;
 import com.example.devSns.dto.post.PostCreateDto;
 import com.example.devSns.dto.post.PostResponseDto;
+import com.example.devSns.exception.ForbiddenException;
 import com.example.devSns.exception.InvalidRequestException;
 import com.example.devSns.exception.NotFoundException;
-import com.example.devSns.repository.CommentRepository;
+import com.example.devSns.repository.MemberRepository;
 import com.example.devSns.repository.PostRepository;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTests {
 
     @Mock
-    private PostRepository postRepository;
+    PostRepository postRepository;
 
     @Mock
-    private CommentRepository commentRepository;
+    MemberRepository memberRepository;
 
     @InjectMocks
-    private PostService postService;
+    PostService postService;
 
-    @Test
-    @DisplayName("게시글 생성 성공")
-    void create_success() {
-        // given
-        PostCreateDto createDto = new PostCreateDto("Test Content", 1L);
-        Post post = Post.create("Test Content", "testUser");
-        post.setId(1L); // Mocking the ID set after save
+    @Nested
+    @DisplayName("create()")
+    class CreateTests {
 
-        when(postRepository.save(any(Post.class))).thenReturn(post);
+        @Test
+        @DisplayName("회원이 존재하면 게시글을 생성하고 ID를 반환한다")
+        void create_success() {
+            // given
+            Long memberId = 1L;
+            PostCreateDto dto = new PostCreateDto("hello world");
 
-        // when
-        Long postId = postService.create(createDto);
+            Member member = mock(Member.class);
+            when(memberRepository.findById(memberId))
+                    .thenReturn(Optional.of(member));
 
-        // then
-        assertNotNull(postId);
-        assertEquals(1L, postId);
-        verify(postRepository, times(1)).save(any(Post.class));
+            Post savedPost = mock(Post.class);
+            when(savedPost.getId()).thenReturn(10L);
+            when(postRepository.save(any(Post.class))).thenReturn(savedPost);
+
+            // when
+            Long postId = postService.create(dto, memberId);
+
+            // then
+            assertEquals(10L, postId);
+            verify(memberRepository, times(1)).findById(memberId);
+            verify(postRepository, times(1)).save(any(Post.class));
+        }
+
+        @Test
+        @DisplayName("회원이 없으면 NotFoundException 발생")
+        void create_member_not_found() {
+            // given
+            Long memberId = 1L;
+            PostCreateDto dto = new PostCreateDto("hello world");
+
+            when(memberRepository.findById(memberId))
+                    .thenReturn(Optional.empty());
+
+            // when & then
+            assertThrows(NotFoundException.class,
+                    () -> postService.create(dto, memberId));
+            verify(postRepository, never()).save(any());
+        }
     }
 
-    @Test
-    @DisplayName("ID로 게시글 단건 조회 성공")
-    void findOne_success() {
-        // given
-        Long postId = 1L;
-        Post post = createDummyPost(postId, "Test Content", "testUser");
+    @Nested
+    @DisplayName("findPostById()")
+    class FindPostByIdTests {
 
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
-        when(commentRepository.countCommentsByPostId(postId)).thenReturn(5L);
+        @Test
+        @DisplayName("게시글이 존재하면 PostResponseDto 로 반환한다")
+        void find_success() {
+            // given
+            Long postId = 1L;
 
-        // when
-        PostResponseDto responseDto = postService.findOne(postId);
+            Member member = mock(Member.class);
+            when(member.getNickname()).thenReturn("tester");
 
-        // then
-        assertNotNull(responseDto);
-        assertEquals(postId, responseDto.id());
-        assertEquals("Test Content", responseDto.content());
-        assertEquals("testUser", responseDto.userName());
-        assertEquals(5L, responseDto.comments());
+            Post post = new Post("content", member);
+            // id, likes, comments가 null이어도 from()은 null 허용
+
+            when(postRepository.findById(postId))
+                    .thenReturn(Optional.of(post));
+
+            // when
+            PostResponseDto dto = postService.findPostById(postId);
+
+            // then
+            assertEquals("content", dto.content());
+            assertEquals("tester", dto.userName());
+            verify(postRepository, times(1)).findById(postId);
+        }
+
+        @Test
+        @DisplayName("게시글이 없으면 NotFoundException 발생")
+        void find_not_found() {
+            // given
+            Long postId = 1L;
+            when(postRepository.findById(postId))
+                    .thenReturn(Optional.empty());
+
+            // when & then
+            assertThrows(NotFoundException.class,
+                    () -> postService.findPostById(postId));
+        }
     }
 
-    @Test
-    @DisplayName("존재하지 않는 ID로 게시글 조회 시 NotFoundException 발생")
-    void findOne_throwsNotFoundException() {
-        // given
-        Long postId = 99L;
-        when(postRepository.findById(postId)).thenReturn(Optional.empty());
+    @Nested
+    @DisplayName("delete()")
+    class DeleteTests {
 
-        // when & then
-        assertThrows(NotFoundException.class, () -> postService.findOne(postId));
-        verify(commentRepository, never()).countCommentsByPostId(anyLong());
+        @Test
+        @DisplayName("작성자이면 게시글을 삭제할 수 있다")
+        void delete_success() {
+            // given
+            Long postId = 1L;
+            Long memberId = 1L;
+
+            Post post = mock(Post.class);
+            when(post.checkOwnership(memberId)).thenReturn(true);
+            when(postRepository.findById(postId))
+                    .thenReturn(Optional.of(post));
+
+            // when
+            postService.delete(postId, memberId);
+
+            // then
+            verify(postRepository, times(1)).delete(post);
+        }
+
+        @Test
+        @DisplayName("작성자가 아니면 ForbiddenException 발생")
+        void delete_forbidden() {
+            // given
+            Long postId = 1L;
+            Long memberId = 1L;
+
+            Post post = mock(Post.class);
+            when(post.checkOwnership(memberId)).thenReturn(false);
+            when(postRepository.findById(postId))
+                    .thenReturn(Optional.of(post));
+
+            // when & then
+            assertThrows(ForbiddenException.class,
+                    () -> postService.delete(postId, memberId));
+            verify(postRepository, never()).delete(any());
+        }
+
+        @Test
+        @DisplayName("게시글이 없으면 NotFoundException 발생")
+        void delete_not_found() {
+            // given
+            Long postId = 1L;
+            Long memberId = 1L;
+
+            when(postRepository.findById(postId))
+                    .thenReturn(Optional.empty());
+
+            // when & then
+            assertThrows(NotFoundException.class,
+                    () -> postService.delete(postId, memberId));
+        }
     }
 
-    @Test
-    @DisplayName("게시글 삭제 성공")
-    void delete_success() {
-        // given
-        Long postId = 1L;
-        Post post = createDummyPost(postId, "Content", "User");
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+    @Nested
+    @DisplayName("updateContent()")
+    class UpdateContentTests {
 
-        // when
-        postService.delete(postId);
+        @Test
+        @DisplayName("유효한 내용 + 작성자이면 게시글 내용을 수정한다")
+        void update_success() {
+            // given
+            Long postId = 1L;
+            Long memberId = 1L;
+            String newContent = "updated content";
 
-        // then
-        verify(postRepository, times(1)).findById(postId);
-        verify(postRepository, times(1)).delete(post);
+            Member member = mock(Member.class);
+            when(member.getNickname()).thenReturn("tester");
+
+            Post post = mock(Post.class);
+            when(post.checkOwnership(memberId)).thenReturn(true);
+            when(post.getMember()).thenReturn(member);
+            when(post.getContent()).thenReturn(newContent);
+            // from() 에서 사용되는 나머지는 null/기본값으로 두거나 필요시 스텁
+
+            when(postRepository.findById(postId))
+                    .thenReturn(Optional.of(post));
+
+            GenericDataDto<String> dto = new GenericDataDto<>(newContent);
+
+            // when
+            PostResponseDto response = postService.updateContent(postId, dto, memberId);
+
+            // then
+            assertEquals(newContent, response.content());
+            assertEquals("tester", response.userName());
+            verify(post, times(1)).setContent(newContent);
+            verify(postRepository, atLeastOnce()).findById(postId);
+        }
+
+        @Test
+        @DisplayName("내용이 null 또는 빈 문자열이면 InvalidRequestException 발생")
+        void update_invalid_content() {
+            Long postId = 1L;
+            Long memberId = 1L;
+
+            GenericDataDto<String> emptyDto = new GenericDataDto<>("");
+
+            assertThrows(InvalidRequestException.class,
+                    () -> postService.updateContent(postId, emptyDto, memberId));
+        }
+
+        @Test
+        @DisplayName("작성자가 아니면 ForbiddenException 발생")
+        void update_forbidden() {
+            // given
+            Long postId = 1L;
+            Long memberId = 1L;
+            GenericDataDto<String> dto = new GenericDataDto<>("new");
+
+            Post post = mock(Post.class);
+            when(post.checkOwnership(memberId)).thenReturn(false);
+            when(postRepository.findById(postId))
+                    .thenReturn(Optional.of(post));
+
+            // when & then
+            assertThrows(ForbiddenException.class,
+                    () -> postService.updateContent(postId, dto, memberId));
+            verify(post, never()).setContent(anyString());
+        }
+
+        @Test
+        @DisplayName("게시글이 없으면 NotFoundException 발생")
+        void update_not_found() {
+            // given
+            Long postId = 1L;
+            Long memberId = 1L;
+            GenericDataDto<String> dto = new GenericDataDto<>("new");
+
+            when(postRepository.findById(postId))
+                    .thenReturn(Optional.empty());
+
+            // when & then
+            assertThrows(NotFoundException.class,
+                    () -> postService.updateContent(postId, dto, memberId));
+        }
     }
 
-    @Test
-    @DisplayName("존재하지 않는 게시글 삭제 시 NotFoundException 발생")
-    void delete_throwsNotFoundException() {
-        // given
-        Long postId = 99L;
-        when(postRepository.findById(postId)).thenReturn(Optional.empty());
+    @Nested
+    @DisplayName("findAsSlice(), findByMemberAsSlice()")
+    class SliceTests {
 
-        // when & then
-        assertThrows(NotFoundException.class, () -> postService.delete(postId));
-        verify(postRepository, never()).delete(any(Post.class));
-    }
+        @Test
+        @DisplayName("전체 게시글 슬라이스 조회는 Repository 에 위임한다")
+        void findAsSlice() {
+            // given
+            Pageable pageable = PageRequest.of(0, 15);
+            PostResponseDto dto = new PostResponseDto(
+                    1L, "content", 1L, "tester", 0L, null, null, 0L
+            );
+            Slice<PostResponseDto> slice =
+                    new SliceImpl<>(List.of(dto), pageable, false);
 
+            when(postRepository.findPostSliceWithLikeCountAndCommentCount(pageable))
+                    .thenReturn(slice);
 
-    @Test
-    @DisplayName("게시글 내용 수정 성공")
-    void updateContent_success() {
-        // given
-        Long postId = 1L;
-        String newContent = "Updated Content";
-        GenericDataDto<String> contentDto = new GenericDataDto<>(newContent);
-        Post post = createDummyPost(postId, "Original Content", "testUser");
+            // when
+            Slice<PostResponseDto> result = postService.findAsSlice(pageable);
 
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
-        when(commentRepository.countCommentsByPostId(postId)).thenReturn(0L);
+            // then
+            assertSame(slice, result);
+            verify(postRepository, times(1))
+                    .findPostSliceWithLikeCountAndCommentCount(pageable);
+        }
 
-        // when
-        PostResponseDto responseDto = postService.updateContent(postId, contentDto);
+        @Test
+        @DisplayName("사용자별 게시글 슬라이스 조회는 Repository 에 위임한다")
+        void findByMemberAsSlice() {
+            // given
+            Pageable pageable = PageRequest.of(0, 15);
+            Long memberId = 1L;
 
-        // then
-        assertEquals(newContent, post.getContent()); // Verify side-effect
-        assertEquals(newContent, responseDto.content());
-        verify(postRepository, times(2)).findById(postId); // findById is called in updateContent and findOne
-    }
+            PostResponseDto dto = new PostResponseDto(
+                    1L, "content", 1L, "tester", 0L, null, null, 0L
+            );
+            Slice<PostResponseDto> slice =
+                    new SliceImpl<>(List.of(dto), pageable, false);
 
-    @Test
-    @DisplayName("게시글 내용 수정 시 내용이 비어있으면 InvalidRequestException 발생")
-    void updateContent_throwsInvalidRequestException_whenContentIsEmpty() {
-        // given
-        Long postId = 1L;
-        GenericDataDto<String> contentDto = new GenericDataDto<>("");
+            when(postRepository.findPostSliceByMemberIdWithLikeCountAndCommentCount(pageable, memberId))
+                    .thenReturn(slice);
 
-        // when & then
-        assertThrows(InvalidRequestException.class, () -> postService.updateContent(postId, contentDto));
-    }
+            // when
+            Slice<PostResponseDto> result = postService.findByMemberAsSlice(pageable, memberId);
 
-    @Test
-    @DisplayName("게시글 좋아요 성공")
-    void like_success() {
-        // given
-        Long postId = 1L;
-        Post post = createDummyPost(postId, "Content", "User");
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
-
-        // when
-        postService.like(postId);
-
-        // then
-        verify(postRepository, times(1)).findById(postId);
-        verify(postRepository, times(1)).incrementLikeById(postId);
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 게시글에 좋아요 시 NotFoundException 발생")
-    void like_throwsNotFoundException() {
-        // given
-        Long postId = 99L;
-        when(postRepository.findById(postId)).thenReturn(Optional.empty());
-
-        // when & then
-        assertThrows(NotFoundException.class, () -> postService.like(postId));
-        verify(postRepository, never()).incrementLikeById(anyLong());
-    }
-
-    @Test
-    @DisplayName("게시글 페이지네이션 조회 - 첫 페이지")
-    void findAsPaginated_initialPage() {
-        // given
-        List<Post> posts = List.of(
-                createDummyPost(10L, "Content 10", "User"),
-                createDummyPost(9L, "Content 9", "User")
-        );
-        when(postRepository.findTop15ByCreatedAtBeforeOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(posts);
-        when(commentRepository.countCommentsAndGroupByPostIdIn(posts)).thenReturn(
-                List.of(new Long[]{10L, 5L}, new Long[]{9L, 2L})
-        );
-
-        // when
-        PaginatedDto<List<PostResponseDto>> result = postService.findAsPaginated(new GenericDataDto<>(null));
-
-        // then
-        assertEquals(2, result.data().size());
-        assertEquals(9L, result.nextQueryCriteria());
-        assertEquals(5L, result.data().get(0).comments());
-        assertEquals(2L, result.data().get(1).comments());
-    }
-
-    @Test
-    @DisplayName("게시글 페이지네이션 조회 - 다음 페이지")
-    void findAsPaginated_nextPage() {
-        // given
-        Long beforeId = 11L;
-        List<Post> posts = List.of(
-                createDummyPost(10L, "Content 10", "User"),
-                createDummyPost(9L, "Content 9", "User")
-        );
-        when(postRepository.findTop15ByIdBeforeOrderByIdDesc(beforeId)).thenReturn(posts);
-        when(commentRepository.countCommentsAndGroupByPostIdIn(posts)).thenReturn(
-                List.of(new Long[]{10L, 5L}, new Long[]{9L, 2L})
-        );
-
-        // when
-        PaginatedDto<List<PostResponseDto>> result = postService.findAsPaginated(new GenericDataDto<>(beforeId));
-
-        // then
-        assertEquals(2, result.data().size());
-        assertEquals(9L, result.nextQueryCriteria()); // last element id
-    }
-
-    @Test
-    @DisplayName("게시글 페이지네이션 조회 - 결과 없음")
-    void findAsPaginated_noResults() {
-        // given
-        when(postRepository.findTop15ByCreatedAtBeforeOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
-
-        // when
-        PaginatedDto<List<PostResponseDto>> result = postService.findAsPaginated(new GenericDataDto<>(null));
-
-        // then
-        assertTrue(result.data().isEmpty());
-        assertNull(result.nextQueryCriteria());
-    }
-
-    private Post createDummyPost(Long id, String content, String userName) {
-        Post post = Post.create(content, userName);
-        post.setId(id);
-        return post;
+            // then
+            assertSame(slice, result);
+            verify(postRepository, times(1))
+                    .findPostSliceByMemberIdWithLikeCountAndCommentCount(pageable, memberId);
+        }
     }
 }
