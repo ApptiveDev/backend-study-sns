@@ -15,3 +15,4 @@ spring:
 jwt:
   secret: zwKNCyglJK435Wj0ylqi/KF5xubUPnzYOQj8Jkl9QWxea4xj100mCRA9tNXjldjvDaQWo9neQCutSAjNd+N4uw==
   access-token-validity-in-seconds: 3600
+  refresh-token-validity-in-seconds: 1209600
