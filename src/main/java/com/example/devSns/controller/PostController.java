@@ -5,48 +5,46 @@ import com.example.devSns.dto.PostResponse;
 import com.example.devSns.dto.PostUpdateRequest;
 import com.example.devSns.entity.Post;
 import com.example.devSns.service.PostService;
-import jakarta.persistence.PostUpdate;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/post")
+@RequestMapping("/posts")
 public class PostController {
-    private final PostService postService;
+    private final PostService PostService;
 
     public PostController(PostService postService) {
-        this.postService = postService;
+        this.PostService = postService;
     }
 
     @GetMapping
-    public List<PostResponse> getAllPosts(){
-        return postService.findAll().stream().map(PostResponse::new).toList();
+    public Page<Post> getPosts(@RequestParam int page, @RequestParam int size){
+        return PostService.FindAll(page, size);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PostResponse> getPostById(@PathVariable Long id){
-        Post post = postService.findById(id);
+        Post post = PostService.FindById(id);
         return ResponseEntity.ok(new PostResponse(post));
     }
 
     @PostMapping
     public PostResponse createPost(@RequestBody PostCreateRequest request){
-        Post created = postService.createPost(request);
+        Post created = PostService.CreatePost(request);
         return new PostResponse(created);
     }
 
     @PatchMapping("/{id}")
     public PostResponse updatePost(@PathVariable Long id, @RequestBody PostUpdateRequest request){
-       Post updated = postService.updatePost(id, request);
+       Post updated = PostService.UpdatePost(id, request);
        return new PostResponse(updated);
     }
 
     @DeleteMapping("/{id}")
     public void deletePost(@PathVariable Long id){
-        postService.delete(id);
+        PostService.delete(id);
     }
 }

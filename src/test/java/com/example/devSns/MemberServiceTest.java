@@ -2,6 +2,7 @@ package com.example.devSns;
 
 import com.example.devSns.dto.CommentResponse;
 import com.example.devSns.dto.PostResponse;
+import com.example.devSns.dto.SignUpRequest;
 import com.example.devSns.entity.*;
 import com.example.devSns.repository.CommentRepository;
 import com.example.devSns.repository.MemberRepository;
@@ -35,11 +36,11 @@ class MemberServiceTest {
     @Test
     @DisplayName("회원 가입 성공")
     void 회원가입_성공() {
-        Member member = Member.create("강지원", "test@test.com", "1234");
+        SignUpRequest request = new SignUpRequest("강지원", "test@test.com", "1234");
 
-        memberService.join(member);
+        memberService.join(request);
 
-        Member found = memberRepository.findByUsername("강지원")
+        Member found = memberRepository.FindByUsername("강지원")
                 .orElseThrow();
 
         assertThat(found.getEmail()).isEqualTo("test@test.com");
@@ -48,12 +49,12 @@ class MemberServiceTest {
     @Test
     @DisplayName("중복 아이디 가입 예외")
     void 중복회원_예외() {
-        Member m1 = Member.create("강지원", "a@test.com", "1111");
-        Member m2 = Member.create("강지원", "b@test.com", "2222");
+       SignUpRequest request1 = new SignUpRequest("강지원", "a@test.com", "1111");
+       SignUpRequest request2 = new SignUpRequest("강지원", "b@test.com", "2222");
 
-        memberService.join(m1);
+        memberService.join(request1);
 
-        assertThatThrownBy(() -> memberService.join(m2))
+        assertThatThrownBy(() -> memberService.join(request2))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Already exists member");
     }
@@ -101,7 +102,7 @@ class MemberServiceTest {
                 .post(post)
                 .member(member)
                 .build());
-        c1.assignMember(member);
+        c1.AssignMember(member);
         commentRepository.save(c1);
 
         Comment c2 = commentRepository.save(Comment.builder()
@@ -110,7 +111,7 @@ class MemberServiceTest {
                 .post(post)
                 .member(member)
                 .build());
-        c1.assignMember(member);
+        c1.AssignMember(member);
         commentRepository.save(c2);
 
         List<CommentResponse> comments = memberService.getCommentsByMember(member.getId());

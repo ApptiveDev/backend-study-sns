@@ -17,7 +17,7 @@ public class Comment{
 
     private String content;
     private String username;
-    private LocalDateTime createdAt;
+    private LocalDateTime CreatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
@@ -31,20 +31,20 @@ public class Comment{
     private Member member;
 
     @PrePersist
-    public void onCreate(){
-        createdAt = LocalDateTime.now();
+    public void OnCreate(){
+        CreatedAt = LocalDateTime.now();
     }
-    public void update(String content){
+    public void Update(String content){
         this.content = content;
     }
-    public void assignTo(Post post){
+    public void AssignTo(Post post){
         this.post = post;
     }
-    public void assignMember(Member member){
+    public void AssignMember(Member member){
         this.member = member;
         member.addComment(this);
     }
-    public static Comment create(String content, Member member, Post post) {
+    public static Comment Create(String content, Member member, Post post) {
         return Comment.builder()
                 .content(content)
                 .username(member.getUsername())

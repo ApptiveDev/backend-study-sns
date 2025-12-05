@@ -15,17 +15,17 @@ import java.util.List;
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long Id;
 
     private String content;
     private String username;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime CreatedAt;
+    private LocalDateTime UpdatedAt;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Like> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,27 +34,27 @@ public class Post {
 
     @PrePersist
     public void onCreate(){
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        CreatedAt = LocalDateTime.now();
+        UpdatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        updatedAt = LocalDateTime.now();
+        UpdatedAt = LocalDateTime.now();
     }
     public void update(String content){
         this.content = content;
     }
-    public void addComment(Comment comment){
+    public void AddComment(Comment comment){
         comments.add(comment);
-        comment.assignTo(this);
+        comment.AssignTo(this);
     }
 
     private Post(String content, Member member){
         this.content = content;
         this.member = member;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.CreatedAt = LocalDateTime.now();
+        this.UpdatedAt = LocalDateTime.now();
 
         member.addPost(this);
     }
@@ -65,7 +65,7 @@ public class Post {
 
     public void updateContent(String newContent){
         this.content = newContent;
-        this.updatedAt = LocalDateTime.now();
+        this.UpdatedAt = LocalDateTime.now();
     }
 
     public void addLike(Like like) {

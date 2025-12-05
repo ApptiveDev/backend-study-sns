@@ -46,7 +46,7 @@ public class LikeServiceTest {
     @DisplayName("멤버 게시글에 좋아요 가능")
     void memberCanLikePost(){
         likeService.toggleLike(member.getId(),post.getId());
-        boolean exists = likeRepository.existsByMemberAndPost(member,post);
+        boolean exists = likeRepository.ExistsByMemberAndPost(member,post);
         assertThat(exists).isTrue();
     }
 
@@ -54,10 +54,10 @@ public class LikeServiceTest {
     @DisplayName("좋아요 두번 누르면 취소 가능")
     void likeIsToggled(){
         likeService.toggleLike(member.getId(),post.getId());
-        assertThat(likeRepository.countByPost(post)).isEqualTo(1);
+        assertThat(likeRepository.CountByPost(post)).isEqualTo(1);
 
         likeService.toggleLike(member.getId(),post.getId());
-        assertThat(likeRepository.countByPost(post)).isEqualTo(0);
+        assertThat(likeRepository.CountByPost(post)).isEqualTo(0);
     }
 
     @Test

@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/comments")
 public class CommentActionController {
-    private final CommentService commentService;
+    private final CommentService CommentService;
 
     public CommentActionController(CommentService commentService){
-        this.commentService = commentService;
+        this.CommentService = commentService;
     }
     @DeleteMapping("/{commentId}")
     public void deleteComment(@PathVariable Long commentId) {
-        commentService.deleteComment(commentId);
+        CommentService.deleteComment(commentId);
     }
 
     @PatchMapping("/{commentId}")
@@ -25,7 +25,7 @@ public class CommentActionController {
             @PathVariable Long commentId,
             @RequestBody CommentUpdateRequest request
     ) {
-        Comment updated = commentService.updateComment(commentId, request.getContent());
+        Comment updated = CommentService.UpdateComment(commentId, request.getContent());
         return ResponseEntity.ok(new CommentResponse(updated));
     }
 }

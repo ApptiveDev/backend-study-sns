@@ -3,17 +3,29 @@ package com.example.devSns.dto;
 import com.example.devSns.entity.Post;
 import lombok.Getter;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
 public class PostResponse {
-
+    @NotNull
     private Long id;
+
+    @NotNull
     private Long memberId;
+
+    @NotEmpty(message="content cannot be empty")
     private String content;
+
+    @NotEmpty(message="username cannot be empty")
     private String username;
+
+    @NotNull
     private LocalDateTime createdAt;
+    @NotNull
     private LocalDateTime updatedAt;
+
     private int likeCount;
     private int commentCount;
 

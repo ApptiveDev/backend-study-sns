@@ -13,22 +13,22 @@ import java.util.Map;
 @RestController
 @RequestMapping("/posts/{postId}/comments")
 public class CommentController {
-    private final CommentService commentService;
+    private final CommentService CommentService;
 
     public CommentController(CommentService commentService) {
-        this.commentService = commentService;
+        this.CommentService = commentService;
     }
 
     @GetMapping
     public List<CommentResponse> getComments(@PathVariable Long postId) {
-        return commentService.getCommentByPost(postId).stream()
+        return CommentService.GetCommentByPost(postId).stream()
                 .map(CommentResponse::new)
                 .toList();
     }
 
     @PostMapping
     public CommentResponse createComment(@PathVariable Long postId, @RequestBody CommentCreateRequest request) {
-        Comment created = commentService.addComment(postId, request);
+        Comment created = CommentService.AddComment(postId, request);
         return new CommentResponse(created);
     }
 
